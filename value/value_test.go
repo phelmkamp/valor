@@ -23,10 +23,22 @@ func Example() {
 	fmt.Println(val3.Or(-1))                          // -1
 	fmt.Println(val3.OrZero())                        // 0
 	fmt.Println(val3.OrElse(func() int { return 1 })) // 1
+
+	// switch
+	var foo3 int
+	switch val {
+	case val.OfOk():
+		val.Ok(&foo3)
+		fmt.Println("Ok")
+	case value.OfNotOk[int]():
+		fmt.Println("None")
+		return
+	}
 	// Output: true
 	// true 42
 	// {42 true}
 	// -1
 	// 0
 	// 1
+	// Ok
 }

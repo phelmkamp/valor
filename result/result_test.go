@@ -46,10 +46,21 @@ func Example() {
 	// errors.Unwrap
 	if res := result.Of(mid(true)); res.IsError() {
 		fmt.Println(res.ErrorUnwrap())
+	}
+
+	// switch
+	var n2 int
+	switch res := result.Of(w.Write([]byte("foo"))); res {
+	case res.OfOk():
+		res.Value().Ok(&n2)
+		fmt.Println("Ok")
+	case res.OfError():
+		fmt.Println(res)
 		return
 	}
 	// Output: 3
 	// fail
+	// Ok
 }
 
 func mid(fail bool) (string, error) {

@@ -2,6 +2,9 @@
 
 This module provides types that optionally contain a value; hence the name valor, short for "value or".
 
+This is not an attempt to make Go code look less like Go.
+Instead, the goal is to codify the ["comma ok"](https://blog.toshima.ru/2019/07/21/go-comma-ok-idiom.html) and ["errors are values"](https://go.dev/blog/errors-are-values) principles that Go already encourages.
+
 ## Installation
 
 ```bash
@@ -73,3 +76,38 @@ if res := result.Of(mid(true)); res.IsError() {
     return
 }
 ```
+
+## Similar concepts in other languages
+
+### Rust
+
+`Value` is like Rust's [`Option`](https://doc.rust-lang.org/std/option/enum.Option.html).
+`Result` is like Rust's [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html).
+
+A `switch` statement provides similar semantics to Rust's `match`:
+
+```go
+var foo int
+switch val {
+case val.OfOk():
+    val.Ok(&foo)
+    fmt.Println("Ok")
+case value.OfNotOk[int]():
+    fmt.Println("None")
+    return
+}
+
+var n int
+switch res := result.Of(w.Write([]byte("foo"))); res {
+case res.OfOk():
+    res.Value().Ok(&n)
+    fmt.Println("Ok")
+case res.OfError():
+    fmt.Println(res)
+    return
+}
+```
+
+### Java
+
+`Value` is like Java's [`Optional`](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html).

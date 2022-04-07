@@ -8,22 +8,22 @@ import (
 
 // Result contains either a value or an error.
 type Result[T any] struct {
-	val T
+	v   T
 	err error
 }
 
-// Of creates a Result of either val or err.
+// Of creates a Result of either v or err.
 // This aids interoperability with function return values
-func Of[T any](val T, err error) Result[T] {
+func Of[T any](v T, err error) Result[T] {
 	if err != nil {
 		return OfError[T](err)
 	}
-	return OfValue(val)
+	return OfOk(v)
 }
 
-// OfValue creates a Result of val.
-func OfValue[T any](val T) Result[T] {
-	return Result[T]{val: val}
+// OfOk creates a Result of v.
+func OfOk[T any](v T) Result[T] {
+	return Result[T]{v: v}
 }
 
 // OfError creates a Result of err.
@@ -31,68 +31,90 @@ func OfError[T any](err error) Result[T] {
 	return Result[T]{err: err}
 }
 
+// OfValue creates a Result of val if ok or err otherwise.
+// This aids in converting a value.Value to a Result.
+func OfValue[T any](val value.Value[T], err error) Result[T] {
+	res := Result[T]{}
+	if !val.Ok(&res.v) {
+		res.err = err
+	}
+	return res
+}
+
 // IsError returns whether r contains an error.
-func (r Result[T]) IsError() bool {
-	return r.err != nil
+func (res Result[T]) IsError() bool {
+	return res.err != nil
 }
 
 // String returns the underlying value or error
 // formatted as a string.
-func (r Result[T]) String() string {
-	if r.IsError() {
-		return fmt.Sprint(r.err)
+func (res Result[T]) String() string {
+	if res.IsError() {
+		return fmt.Sprint(res.err)
 	}
-	return fmt.Sprint(r.val)
+	return fmt.Sprint(res.v)
 }
 
-// Value returns an value.Value containing the
-// contained value, or an empty value.Value if no value is present.
-func (r Result[T]) Value() value.Value[T] {
-	if r.IsError() {
+// Value returns a value.Value containing either the
+// underlying value or nothing.
+func (res Result[T]) Value() value.Value[T] {
+	if res.IsError() {
 		return value.Value[T]{}
 	}
-	return value.OfOk(r.val)
+	return value.OfOk(res.v)
 }
 
 // Error returns the contained error, or nil if no error is present.
-func (r Result[T]) Error() error {
-	return r.err
+func (res Result[T]) Error() error {
+	return res.err
 }
 
 // Errorf returns a Result where the contained error has
 // been formatted with format.
-// Does nothing if r does not contain an error.
-func (r Result[T]) Errorf(format string) Result[T] {
-	if r.IsError() {
-		r.err = fmt.Errorf(format, r.err)
+// Does nothing if res does not contain an error.
+func (res Result[T]) Errorf(format string) Result[T] {
+	if res.IsError() {
+		res.err = fmt.Errorf(format, res.err)
 	}
-	return r
+	return res
 }
 
 // ErrorAs calls errors.As with the underlying error.
-// Does nothing if r does not contain an error.
-func (r Result[T]) ErrorAs(target any) bool {
-	if !r.IsError() {
+// Does nothing if res does not contain an error.
+func (res Result[T]) ErrorAs(target any) bool {
+	if !res.IsError() {
 		return false
 	}
-	return errors.As(r.err, target)
+	return errors.As(res.err, target)
 }
 
 // ErrorIs calls errors.Is with the underlying error.
-// Does nothing if r does not contain an error.
-func (r Result[T]) ErrorIs(target error) bool {
-	if !r.IsError() {
+// Does nothing if res does not contain an error.
+func (res Result[T]) ErrorIs(target error) bool {
+	if !res.IsError() {
 		return false
 	}
-	return errors.Is(r.err, target)
+	return errors.Is(res.err, target)
 }
 
 // ErrorUnwrap calls errors.Unwrap with the underlying error.
-// Does nothing if r does not contain an error.
-func (r Result[T]) ErrorUnwrap() Result[T] {
-	if !r.IsError() {
-		return r
+// Does nothing if res does not contain an error.
+func (res Result[T]) ErrorUnwrap() Result[T] {
+	if !res.IsError() {
+		return res
 	}
-	r.err = errors.Unwrap(r.err)
-	return r
+	res.err = errors.Unwrap(res.err)
+	return res
+}
+
+// OfOk creates a Result of the underlying value, dropping any error.
+// This aids in comparisons, enabling the use of res in switch statements.
+func (res Result[T]) OfOk() Result[T] {
+	return OfOk(res.v)
+}
+
+// OfError creates a Result of the underlying error, dropping any value.
+// This aids in comparisons, enabling the use of res in switch statements.
+func (res Result[T]) OfError() Result[T] {
+	return OfError[T](res.err)
 }

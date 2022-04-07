@@ -2,76 +2,86 @@ package value
 
 // Value either contains a value (ok) or nothing (not ok).
 type Value[T any] struct {
-	val T
-	ok  bool
+	v  T
+	ok bool
 }
 
-// Of creates a Value of val if ok is true.
+// Of creates a Value of v if ok is true.
 // This aids interoperability with return values
 // that follow the "comma ok" idiom.
-func Of[T any](val T, ok bool) Value[T] {
+func Of[T any](v T, ok bool) Value[T] {
 	if ok {
-		return OfOk(val)
+		return OfOk(v)
 	}
 	return Value[T]{}
 }
 
-// OfOk creates a Value of val.
-func OfOk[T any](val T) Value[T] {
-	return Value[T]{val: val, ok: true}
+// OfOk creates an ok Value of v.
+func OfOk[T any](v T) Value[T] {
+	return Value[T]{v: v, ok: true}
 }
 
-//func OfNone[T any]() Value[T] {
-//	return &Value[T]{ok: false}
-//}
+// OfNotOk creates a Value that is not ok.
+// This aids in comparisons, enabling the use of Value in switch statements.
+func OfNotOk[T any]() Value[T] {
+	return Value[T]{}
+}
 
 // IsOk returns whether v contains a value.
-func (v Value[T]) IsOk() bool {
-	return v.ok
+func (val Value[T]) IsOk() bool {
+	return val.ok
 }
-
-//func (o Value[T]) Must() T {
-//	if !v.IsOk() {
-//		panic(`called Value.Value() on a not-ok value`)
-//	}
-//	return v.val
-//}
 
 // Ok sets dst to the underlying value if ok.
 // Returns true if ok, false if not ok.
-func (v Value[T]) Ok(dst *T) bool {
-	if !v.IsOk() {
+func (val Value[T]) Ok(dst *T) bool {
+	if !val.IsOk() {
 		return false
 	}
-	*dst = v.val
+	*dst = val.v
 	return true
 }
 
 // Or returns the underlying value if ok, or def if not ok.
-func (v Value[T]) Or(def T) T {
-	if v.IsOk() {
-		return v.val
+func (val Value[T]) Or(def T) T {
+	if val.IsOk() {
+		return val.v
 	}
 	return def
 }
 
 // OrZero returns the underlying value if ok, or the zero value if not ok.
-func (v Value[T]) OrZero() T {
-	return v.val
+func (val Value[T]) OrZero() T {
+	return val.v
 }
 
 // OrElse returns the underlying value if ok, or the result of f if not ok.
-func (v Value[T]) OrElse(f func() T) T {
-	if v.IsOk() {
-		return v.val
+func (val Value[T]) OrElse(f func() T) T {
+	if val.IsOk() {
+		return val.v
 	}
 	return f()
 }
 
+// OfOk creates an ok Value of the underlying value.
+// This aids in comparisons, enabling the use of val in switch statements.
+func (val Value[T]) OfOk() Value[T] {
+	return OfOk(val.v)
+}
+
+// Inspect calls f with the underlying value if ok.
+// Does nothing if not ok.
+func (val Value[T]) Inspect(f func(T)) Value[T] {
+	if val.IsOk() {
+		f(val.v)
+	}
+	return val
+}
+
 // Map returns the result of f on the underlying value of v.
-func Map[T, T2 any](v Value[T], f func(T) T2) Value[T2] {
-	if !v.IsOk() {
+func Map[T, T2 any](val Value[T], f func(T) T2) Value[T2] {
+	if !val.IsOk() {
 		return Value[T2]{}
 	}
-	return OfOk(f(v.val))
+	return OfOk(f(val.v))
 }
