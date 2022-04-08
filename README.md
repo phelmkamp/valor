@@ -90,17 +90,17 @@ A `switch` statement provides similar semantics to Rust's `match`:
 var foo int
 switch val {
 case val.OfOk():
-    val.Ok(&foo)
+    foo = val.MustOk()
     fmt.Println("Ok")
 case value.OfNotOk[int]():
-    fmt.Println("None")
+    fmt.Println("Not Ok")
     return
 }
 
 var n int
-switch res := result.Of(w.Write([]byte("foo"))); res {
+switch res {
 case res.OfOk():
-    res.Value().Ok(&n)
+    n = res.Value().MustOk()
     fmt.Println("Ok")
 case res.OfError():
     fmt.Println(res)

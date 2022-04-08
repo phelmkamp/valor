@@ -49,10 +49,9 @@ func Example() {
 	}
 
 	// switch
-	var n2 int
 	switch res := result.Of(w.Write([]byte("foo"))); res {
 	case res.OfOk():
-		res.Value().Ok(&n2)
+		n = res.Value().MustOk()
 		fmt.Println("Ok")
 	case res.OfError():
 		fmt.Println(res)

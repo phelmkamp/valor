@@ -13,7 +13,7 @@ type Result[T any] struct {
 }
 
 // Of creates a Result of either v or err.
-// This aids interoperability with function return values
+// This aids interoperability with function return values.
 func Of[T any](v T, err error) Result[T] {
 	if err != nil {
 		return OfError[T](err)
@@ -31,7 +31,7 @@ func OfError[T any](err error) Result[T] {
 	return Result[T]{err: err}
 }
 
-// OfValue creates a Result of val if ok or err otherwise.
+// OfValue creates a Result of the underlying value of val if ok or err otherwise.
 // This aids in converting a value.Value to a Result.
 func OfValue[T any](val value.Value[T], err error) Result[T] {
 	res := Result[T]{}
@@ -117,4 +117,31 @@ func (res Result[T]) OfOk() Result[T] {
 // This aids in comparisons, enabling the use of res in switch statements.
 func (res Result[T]) OfError() Result[T] {
 	return OfError[T](res.err)
+}
+
+// Transpose converts res to a value.Value of Result.
+// Returns a not ok value.Value if the underlying value.Value is not ok.
+// Otherwise, returns an ok value.Value of a Result that contains the underlying value or error.
+func Transpose[T any](res Result[value.Value[T]]) value.Value[Result[T]] {
+	if res.IsError() {
+		return value.OfOk(OfError[T](res.err))
+	}
+	if res.v.IsOk() {
+		return value.OfOk(OfOk[T](res.v.MustOk()))
+	}
+	return value.OfNotOk[Result[T]]()
+}
+
+// TransposeValue converts val to a Result of value.Value.
+// Returns an error Result if the underlying value is an error.
+// Otherwise, returns a Result of a value.Value that contains the underlying value if ok or nothing if not ok.
+func TransposeValue[T any](val value.Value[Result[T]]) Result[value.Value[T]] {
+	var v Result[T]
+	if !val.Ok(&v) {
+		return OfOk(value.OfNotOk[T]())
+	}
+	if v.IsError() {
+		return OfError[value.Value[T]](v.err)
+	}
+	return OfOk(value.OfOk(v.v))
 }

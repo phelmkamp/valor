@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/phelmkamp/valor/value"
 	"strconv"
+	"testing"
 )
 
 func Example() {
@@ -25,13 +26,12 @@ func Example() {
 	fmt.Println(val3.OrElse(func() int { return 1 })) // 1
 
 	// switch
-	var foo3 int
 	switch val {
 	case val.OfOk():
-		val.Ok(&foo3)
+		foo = val.MustOk()
 		fmt.Println("Ok")
 	case value.OfNotOk[int]():
-		fmt.Println("None")
+		fmt.Println("Not Ok")
 		return
 	}
 	// Output: true
@@ -41,4 +41,15 @@ func Example() {
 	// 0
 	// 1
 	// Ok
+}
+
+func TestValue_Take(t *testing.T) {
+	val := value.OfOk(42)
+	val2 := val.Take()
+	if want2 := value.OfOk(42); val2 != want2 {
+		t.Errorf("Take() = %v, want %v", val2, want2)
+	}
+	if want := value.OfNotOk[int](); val != want {
+		t.Errorf("val after Take() = %v, want %v", val, want)
+	}
 }
