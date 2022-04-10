@@ -3,7 +3,6 @@ package three_test
 import (
 	"fmt"
 	"github.com/phelmkamp/valor/tuple/three"
-	"github.com/phelmkamp/valor/value"
 )
 
 func get() (string, int, float32, bool) {
@@ -11,7 +10,7 @@ func get() (string, int, float32, bool) {
 }
 
 func Example() {
-	val := value.Of(three.TupleOf(get()))
+	val := three.TupleValueOf(get())
 	fmt.Println(val)
 	// Output: {{a 1 1} true}
 }
