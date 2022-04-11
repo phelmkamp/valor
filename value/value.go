@@ -17,7 +17,7 @@ func Of[T any](v T, ok bool) Value[T] {
 	if ok {
 		return OfOk(v)
 	}
-	return Value[T]{}
+	return OfNotOk[T]()
 }
 
 // OfOk creates an ok Value of v.
@@ -98,7 +98,7 @@ func (val Value[T]) Filter(f func(T) bool) Value[T] {
 	if val.IsOk() && f(val.v) {
 		return val
 	}
-	return Value[T]{}
+	return OfNotOk[T]()
 }
 
 // Map returns a Value of the result of f on the underlying value.
