@@ -50,13 +50,13 @@ if res := result.Of(w.Write([]byte("foo"))); res.IsError() {
 // try to get value, printing wrapped error if not ok
 var n int
 if res := result.Of(w.Write([]byte("foo"))); !res.Value().Ok(&n) {
-    fmt.Println(res.Errorf("Write() failed: %w"))
+    fmt.Println(res.Errorf("Write() failed: %w").Error())
     return
 }
 
 // errors.Is
 if res := result.Of(w.Write([]byte("foo"))); res.ErrorIs(io.ErrShortWrite) {
-    fmt.Println(res)
+    fmt.Println(res.Error())
     return
 }
 
@@ -66,15 +66,27 @@ if res := result.Of(w.Write([]byte("foo"))); res.IsError() {
     if res.ErrorAs(&err) {
         fmt.Println("path=" + err.Path)
     }
-    fmt.Println(res)
+    fmt.Println(res.Error())
     return
 }
 
 // errors.Unwrap
 if res := result.Of(mid(true)); res.IsError() {
-    fmt.Println(res.ErrorUnwrap())
+    fmt.Println(res.ErrorUnwrap().Error())
     return
 }
+```
+
+### Tuples
+
+`two.Tuple`, `three.Tuple`, and `four.Tuple` contain two, three, and four values respectively.
+
+```go
+get := func(string, int, bool) {
+    return "a", 1, true
+}
+val := two.TupleValueOf(get())
+fmt.Println(val) // {{a 1} true}
 ```
 
 ## Similar concepts in other languages

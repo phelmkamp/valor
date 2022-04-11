@@ -1,3 +1,7 @@
+// Copyright 2022 phelmkamp. All rights reserved.
+// Use of this source code is governed by a MIT
+// license that can be found in the LICENSE file.
+
 package value
 
 // Value either contains a value (ok) or nothing (not ok).
@@ -97,13 +101,6 @@ func (val Value[T]) Filter(f func(T) bool) Value[T] {
 	return Value[T]{}
 }
 
-// Take returns the current Value and sets val as not ok.
-func (val *Value[T]) Take() Value[T] {
-	var val2 Value[T]
-	*val, val2 = val2, *val
-	return val2
-}
-
 // Map returns a Value of the result of f on the underlying value.
 // Returns a not ok Value if val is not ok.
 func Map[T, T2 any](val Value[T], f func(T) T2) Value[T2] {
@@ -142,6 +139,7 @@ func ZipWith[T, T2, T3 any](val Value[T], val2 Value[T2], f func(T, T2) T3) Valu
 func UnzipWith[T, T2, T3 any](val Value[T], f func(T) (T2, T3)) (val2 Value[T2], val3 Value[T3]) {
 	if val.IsOk() {
 		val2.v, val3.v = f(val.v)
+		val2.ok, val3.ok = true, true
 	}
 	return
 }

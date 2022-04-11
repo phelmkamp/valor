@@ -1,3 +1,7 @@
+// Copyright 2022 phelmkamp. All rights reserved.
+// Use of this source code is governed by a MIT
+// license that can be found in the LICENSE file.
+
 package result
 
 import (
@@ -46,13 +50,9 @@ func (res Result[T]) IsError() bool {
 	return res.err != nil
 }
 
-// String returns the underlying value or error
-// formatted as a string.
+// String returns res formatted as a string.
 func (res Result[T]) String() string {
-	if res.IsError() {
-		return fmt.Sprint(res.err)
-	}
-	return fmt.Sprint(res.v)
+	return fmt.Sprintf("{%v %v}", res.v, res.err)
 }
 
 // Value returns a value.Value containing either the
@@ -98,12 +98,11 @@ func (res Result[T]) ErrorIs(target error) bool {
 }
 
 // ErrorUnwrap calls errors.Unwrap with the underlying error.
-// Does nothing if res does not contain an error.
+// Does nothing if res does not contain an error that wraps another error.
 func (res Result[T]) ErrorUnwrap() Result[T] {
-	if !res.IsError() {
-		return res
+	if u := errors.Unwrap(res.err); u != nil {
+		res.err = u
 	}
-	res.err = errors.Unwrap(res.err)
 	return res
 }
 
