@@ -7,7 +7,8 @@
 This module provides types that optionally contain a value; hence the name valor, short for "value or".
 
 This is not an attempt to make Go code look less like Go.
-Instead, the goal is to codify the ["comma ok"](https://blog.toshima.ru/2019/07/21/go-comma-ok-idiom.html) and ["errors are values"](https://go.dev/blog/errors-are-values) principles that Go already encourages.
+Instead, the goal is to codify the ["comma ok"](https://blog.toshima.ru/2019/07/21/go-comma-ok-idiom.html) and
+["errors are values"](https://go.dev/blog/errors-are-values) principles that Go already encourages.
 
 ## Installation
 
@@ -19,7 +20,8 @@ go get github.com/phelmkamp/valor
 
 ### Value
 
-`Value` is modeled after the "comma ok" idiom. It contains a value (ok) or nothing (not ok).
+[`Value`](https://pkg.go.dev/github.com/phelmkamp/valor/value) is modeled after the "comma ok" idiom.
+It contains a value (ok) or nothing (not ok).
 
 ```go
 m := map[string]int{"foo": 42}
@@ -42,7 +44,7 @@ fmt.Println(val3.OrElse(func() int { return 1 })) // 1
 
 ### Result
 
-`Result` contains either a value or an error.
+[`Result`](https://pkg.go.dev/github.com/phelmkamp/valor/result) contains either a value or an error.
 
 ```go
 // traditional
@@ -83,7 +85,9 @@ if res := result.Of(mid(true)); res.IsError() {
 
 ### Tuples
 
-`two.Tuple`, `three.Tuple`, and `four.Tuple` contain two, three, and four values respectively.
+[`two.Tuple`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/two), [`three.Tuple`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/three), and
+[`four.Tuple`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/four) contain two, three, and four values respectively.
+They enable `Value` and `Result` to contain multiple values.
 
 {% raw %}
 ```go
@@ -129,3 +133,8 @@ case res.OfError():
 ### Java
 
 `Value` is like Java's [`Optional`](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html).
+
+## Releases
+
+This module is currently at v0 but every effort will be made to avoid breaking changes.
+Instead, functionality will be deprecated as needed with plans to remove in v1.
