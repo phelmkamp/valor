@@ -2,6 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/phelmkamp/valor.svg)](https://pkg.go.dev/github.com/phelmkamp/valor)
 [![Go Report Card](https://goreportcard.com/badge/github.com/phelmkamp/valor)](https://goreportcard.com/report/github.com/phelmkamp/valor)
+[![codecov](https://codecov.io/gh/phelmkamp/valor/branch/main/graph/badge.svg?token=GH8IYR78VD)](https://codecov.io/gh/phelmkamp/valor)
 
 This module provides types that optionally contain a value; hence the name valor, short for "value or".
 
