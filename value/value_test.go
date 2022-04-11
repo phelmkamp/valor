@@ -36,7 +36,7 @@ func Example() {
 	switch val {
 	case val.OfOk():
 		foo = val.MustOk()
-		fmt.Println("Ok")
+		fmt.Println(foo)
 	case value.OfNotOk[int]():
 		fmt.Println("Not Ok")
 		return
@@ -47,7 +47,7 @@ func Example() {
 	// -1
 	// 0
 	// 1
-	// Ok
+	// 42
 }
 
 func TestValue_Ok(t *testing.T) {
