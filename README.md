@@ -81,6 +81,7 @@ if res := result.Of(mid(true)); res.IsError() {
 
 `two.Tuple`, `three.Tuple`, and `four.Tuple` contain two, three, and four values respectively.
 
+{% raw %}
 ```go
 get := func(string, int, bool) {
     return "a", 1, true
@@ -88,6 +89,7 @@ get := func(string, int, bool) {
 val := two.TupleValueOf(get())
 fmt.Println(val) // {{a 1} true}
 ```
+{% endraw %}
 
 ## Similar concepts in other languages
 
