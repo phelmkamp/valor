@@ -17,6 +17,13 @@ import (
 	"testing"
 )
 
+// type checks
+var (
+	_ = result.OfError[*struct{}](errFail)
+	_ = result.OfError[map[string]struct{}](errFail)
+	_ = result.OfError[[]struct{}](errFail)
+)
+
 func Example() {
 	var w strings.Builder
 	// traditional
@@ -91,6 +98,17 @@ func TestOf(t *testing.T) {
 	}
 	if got := result.Of(leaf(false)); got != result.OfOk(1) {
 		t.Errorf("Of() = %v, want %v", got, result.OfOk(1))
+	}
+}
+
+func TestOfError(t *testing.T) {
+	// Special case: OfError(nil) has no error AND a not ok Value
+	got := result.OfError[result.Empty](nil)
+	if got.IsError() {
+		t.Errorf("IsError() after OfError(nil) = %v, want %v", got.IsError(), false)
+	}
+	if got.Value().IsOk() {
+		t.Errorf("Value().IsOk() after OfError(nil) = %v, want %v ", got.Value().IsOk(), false)
 	}
 }
 
