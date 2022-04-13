@@ -14,6 +14,13 @@ import (
 	"testing"
 )
 
+// type checks
+var (
+	_ = value.OfNotOk[*struct{}]()
+	_ = value.OfNotOk[map[string]struct{}]()
+	_ = value.OfNotOk[[]struct{}]()
+)
+
 func Example() {
 	m := map[string]int{"foo": 42}
 	foo, ok := m["foo"]

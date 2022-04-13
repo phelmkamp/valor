@@ -10,11 +10,22 @@ import (
 	"github.com/phelmkamp/valor/value"
 )
 
+var (
+	// errNil differentiates OfError(nil) from OfOk.
+	errNil = errors.New("errNil")
+)
+
 // Result contains either a value or an error.
 type Result[T any] struct {
 	v   T
 	err error
 }
+
+// Empty is an empty value.
+// It's an alias for struct{} and is equivalent to struct{} in all ways.
+// This is useful when a Result can only contain an error or nothing:
+//	result.OfError[result.Empty](err)
+type Empty = struct{}
 
 // Of creates a Result of either v or err.
 // This aids interoperability with function return values.
@@ -32,22 +43,26 @@ func OfOk[T any](v T) Result[T] {
 
 // OfError creates a Result of err.
 func OfError[T any](err error) Result[T] {
+	if err == nil {
+		err = errNil
+	}
 	return Result[T]{err: err}
 }
 
 // OfValue creates a Result of the underlying value of val if ok or err otherwise.
 // This aids in converting a value.Value to a Result.
 func OfValue[T any](val value.Value[T], err error) Result[T] {
-	res := Result[T]{}
+	var res Result[T]
 	if !val.Ok(&res.v) {
-		res.err = err
+		return OfError[T](err)
 	}
 	return res
 }
 
 // IsError returns whether r contains an error.
 func (res Result[T]) IsError() bool {
-	return res.err != nil
+	// Call Error() to handle errNil properly.
+	return res.Error() != nil
 }
 
 // String returns res formatted as a string.
@@ -58,14 +73,18 @@ func (res Result[T]) String() string {
 // Value returns a value.Value containing either the
 // underlying value or nothing.
 func (res Result[T]) Value() value.Value[T] {
-	if res.IsError() {
-		return value.Value[T]{}
+	// Special case: errNil should be "not ok" so don't call IsError().
+	if res.err != nil {
+		return value.OfNotOk[T]()
 	}
 	return value.OfOk(res.v)
 }
 
 // Error returns the contained error, or nil if no error is present.
 func (res Result[T]) Error() error {
+	if res.err == errNil {
+		return nil
+	}
 	return res.err
 }
 
