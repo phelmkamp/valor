@@ -25,6 +25,7 @@ type Result[T any] struct {
 // It's an alias for struct{} and is equivalent to struct{} in all ways.
 // This is useful when a Result can only contain an error or nothing:
 //	result.OfError[result.Empty](err)
+// Deprecated: use unit.Type instead.
 type Empty = struct{}
 
 // Of creates a Result of either v or err.

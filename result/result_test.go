@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/phelmkamp/valor/result"
+	"github.com/phelmkamp/valor/tuple/unit"
 	"github.com/phelmkamp/valor/value"
 	"io"
 	"io/fs"
@@ -103,7 +104,7 @@ func TestOf(t *testing.T) {
 
 func TestOfError(t *testing.T) {
 	// Special case: OfError(nil) has no error AND a not-ok Value
-	got := result.OfError[result.Empty](nil)
+	got := result.OfError[unit.Type](nil)
 	if got.IsError() {
 		t.Errorf("IsError() after OfError(nil) = %v, want %v", got.IsError(), false)
 	}

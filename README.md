@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/phelmkamp/valor)](https://goreportcard.com/report/github.com/phelmkamp/valor)
 [![codecov](https://codecov.io/gh/phelmkamp/valor/branch/main/graph/badge.svg?token=GH8IYR78VD)](https://codecov.io/gh/phelmkamp/valor)
 
-This module provides types that optionally contain a value; hence the name valor, short for "value or".
+This module provides option and result types that optionally contain a value; hence the name valor, short for "value or".
 
 This is not an attempt to make Go code look less like Go.
 Instead, the goal is to codify the ["comma ok"](https://blog.toshima.ru/2019/07/21/go-comma-ok-idiom.html) and
@@ -85,9 +85,10 @@ if res := result.Of(mid(true)); res.IsError() {
 
 ### Tuples
 
+[`unit.Type`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/unit), [`singleton.Set`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/singleton),
 [`two.Tuple`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/two), [`three.Tuple`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/three), and
-[`four.Tuple`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/four) contain two, three, and four values respectively.
-They enable `Value` and `Result` to contain multiple values.
+[`four.Tuple`](https://pkg.go.dev/github.com/phelmkamp/valor/tuple/four) contain zero through four values respectively.
+Among other things, they enable `Value` and `Result` to contain a variable number of values.
 
 {% raw %}
 ```go
@@ -113,7 +114,7 @@ var foo int
 switch val {
 case val.OfOk():
     foo = val.MustOk()
-    fmt.Println("Ok")
+    fmt.Println("Ok", foo)
 case value.OfNotOk[int]():
     fmt.Println("Not Ok")
     return
@@ -123,9 +124,9 @@ var n int
 switch res {
 case res.OfOk():
     n = res.Value().MustOk()
-    fmt.Println("Ok")
+    fmt.Println("Ok", n)
 case res.OfError():
-    fmt.Println(res)
+    fmt.Println("Error", res.Error())
     return
 }
 ```
@@ -133,6 +134,11 @@ case res.OfError():
 ### Java
 
 `Value` is like Java's [`Optional`](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html).
+
+### More
+
+ * https://en.wikipedia.org/wiki/Result_type
+ * https://en.wikipedia.org/wiki/Option_type
 
 ## Releases
 
