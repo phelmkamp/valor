@@ -102,7 +102,7 @@ func TestOf(t *testing.T) {
 }
 
 func TestOfError(t *testing.T) {
-	// Special case: OfError(nil) has no error AND a not ok Value
+	// Special case: OfError(nil) has no error AND a not-ok Value
 	got := result.OfError[result.Empty](nil)
 	if got.IsError() {
 		t.Errorf("IsError() after OfError(nil) = %v, want %v", got.IsError(), false)

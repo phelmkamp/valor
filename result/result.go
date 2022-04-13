@@ -138,7 +138,7 @@ func (res Result[T]) OfError() Result[T] {
 }
 
 // Transpose converts res to a value.Value of Result.
-// Returns a not ok value.Value if the underlying value.Value is not ok.
+// Returns a not-ok value.Value if the underlying value.Value is not ok.
 // Otherwise, returns an ok value.Value of a Result that contains the underlying value or error.
 func Transpose[T any](res Result[value.Value[T]]) value.Value[Result[T]] {
 	if res.IsError() {
