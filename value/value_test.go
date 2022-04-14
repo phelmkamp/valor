@@ -6,6 +6,9 @@ package value_test
 
 import (
 	"fmt"
+	"github.com/phelmkamp/valor/tuple/four"
+	"github.com/phelmkamp/valor/tuple/singleton"
+	"github.com/phelmkamp/valor/tuple/two"
 	"github.com/phelmkamp/valor/value"
 	"math/rand"
 	"strconv"
@@ -166,6 +169,18 @@ func ExampleUnzipWith() {
 	// baz
 }
 
+func ExampleUnzipWith_tuple() {
+	v1234 := value.OfOk(four.TupleOf(1, "two", 3.0, []int{4}))
+	v13, v24 := value.UnzipWith(v1234, two.TupleUnzip[int, string, float64, []int])
+	fmt.Println(v13.MustOk(), v24.MustOk())
+	v1, v3 := value.UnzipWith(v13, singleton.SetUnzip[int, float64])
+	v2, v4 := value.UnzipWith(v24, singleton.SetUnzip[string, []int])
+	fmt.Println(v1.MustOk(), v3.MustOk(), v2.MustOk(), v4.MustOk())
+	// Output:
+	// {1 3} {two [4]}
+	// {1} {3} {two} {[4]}
+}
+
 func TestUnzipWith(t *testing.T) {
 	gotVal2, gotVal3 := value.UnzipWith(value.OfNotOk[string](), splitFirstColon)
 	if gotVal2 != value.OfNotOk[string]() {
@@ -275,6 +290,21 @@ func TestValue_OrZero(t *testing.T) {
 	if got := value.OfOk("foo").OrZero(); got != "foo" {
 		t.Errorf("OrZero() = %v, want %v", got, "foo")
 	}
+}
+
+func ExampleZipWith_tuple() {
+	v1 := value.OfOk(singleton.SetOf(1))
+	v2 := value.OfOk(singleton.SetOf("two"))
+	v3 := value.OfOk(singleton.SetOf(3.0))
+	v4 := value.OfOk(singleton.SetOf([]int{4}))
+	v12 := value.ZipWith(v1, v2, singleton.SetZip[int, string])
+	v34 := value.ZipWith(v3, v4, singleton.SetZip[float64, []int])
+	fmt.Println(v12.MustOk(), v34.MustOk())
+	v1324 := value.ZipWith(v12, v34, two.TupleZip[int, float64, string, []int])
+	fmt.Println(v1324.MustOk())
+	// Output:
+	// {1 two} {3 [4]}
+	// {1 3 two [4]}
 }
 
 func TestZipWith(t *testing.T) {
