@@ -9,4 +9,6 @@ package unit
 type Type = struct{}
 
 // Unit is the value of the unit type.
+//
+// It's empty and occupies no space in memory.
 var Unit = Type{}

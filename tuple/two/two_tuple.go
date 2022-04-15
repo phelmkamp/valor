@@ -35,10 +35,12 @@ func TupleResultOf[T, T2 any](v T, v2 T2, err error) result.Result[Tuple[T, T2]]
 	return result.Of(TupleOf(v, v2), err)
 }
 
+// TupleZip combines the values of t and t2 into a four.Tuple.
 func TupleZip[T, T2, T3, T4 any](t Tuple[T, T3], t2 Tuple[T2, T4]) four.Tuple[T, T2, T3, T4] {
 	return four.TupleOf(t.V, t2.V, t.V2, t2.V2)
 }
 
+// TupleUnzip separates the values of t into two Tuples.
 func TupleUnzip[T, T2, T3, T4 any](t four.Tuple[T, T2, T3, T4]) (Tuple[T, T3], Tuple[T2, T4]) {
 	return TupleOf(t.V, t.V3), TupleOf(t.V2, t.V4)
 }

@@ -105,7 +105,7 @@ func (val Value[T]) Filter(f func(T) bool) Value[T] {
 // Returns a not-ok Value if val is not ok.
 func Map[T, T2 any](val Value[T], f func(T) T2) Value[T2] {
 	if !val.IsOk() {
-		return Value[T2]{}
+		return OfNotOk[T2]()
 	}
 	return OfOk(f(val.v))
 }
@@ -114,7 +114,7 @@ func Map[T, T2 any](val Value[T], f func(T) T2) Value[T2] {
 // Returns a not-ok Value if val is not ok.
 func FlatMap[T, T2 any](val Value[T], f func(T) Value[T2]) Value[T2] {
 	if !val.IsOk() {
-		return Value[T2]{}
+		return OfNotOk[T2]()
 	}
 	return f(val.v)
 }
@@ -129,7 +129,7 @@ func Contains[T comparable](val Value[T], v T) bool {
 // Returns a not-ok Value if either val or val2 is not ok.
 func ZipWith[T, T2, T3 any](val Value[T], val2 Value[T2], f func(T, T2) T3) Value[T3] {
 	if !val.IsOk() || !val2.IsOk() {
-		return Value[T3]{}
+		return OfNotOk[T3]()
 	}
 	return OfOk(f(val.v, val2.v))
 }
