@@ -245,7 +245,7 @@ func recoverMustOk(val value.Value[float64]) (panicked bool) {
 	defer func() {
 		if r := recover(); r != nil {
 			msg, _ := r.(string)
-			if panicked = msg == "value.MustOk(): not ok"; !panicked {
+			if panicked = msg == "Value.MustOk(): not ok"; !panicked {
 				// propagate unexpected panic
 				panic(r)
 			}
