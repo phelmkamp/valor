@@ -7,9 +7,9 @@ package result_test
 import (
 	"errors"
 	"fmt"
+	"github.com/phelmkamp/valor/optional"
 	"github.com/phelmkamp/valor/result"
 	"github.com/phelmkamp/valor/tuple/unit"
-	"github.com/phelmkamp/valor/value"
 	"io"
 	"io/fs"
 	"reflect"
@@ -78,7 +78,7 @@ func Example() {
 
 func mid(fail bool) (string, error) {
 	var s string
-	if res := result.Of(leaf(fail)); !value.Map(res.Value(), strconv.Itoa).Ok(&s) {
+	if res := result.Of(leaf(fail)); !optional.Map(res.Value(), strconv.Itoa).Ok(&s) {
 		return "", res.Errorf("leaf() failed: %w").Error()
 	}
 	return "", nil
@@ -114,10 +114,10 @@ func TestOfError(t *testing.T) {
 }
 
 func TestOfValue(t *testing.T) {
-	if got := result.OfValue(value.OfNotOk[string](), errFail); got != result.OfError[string](errFail) {
+	if got := result.OfValue(optional.OfNotOk[string](), errFail); got != result.OfError[string](errFail) {
 		t.Errorf("OfValue() = %v, want %v", got, result.OfError[string](errFail))
 	}
-	if got := result.OfValue(value.OfOk("foo"), errFail); got != result.OfOk("foo") {
+	if got := result.OfValue(optional.OfOk("foo"), errFail); got != result.OfOk("foo") {
 		t.Errorf("OfValue() = %v, want %v", got, result.OfOk("foo"))
 	}
 }
@@ -209,35 +209,35 @@ func TestResult_String(t *testing.T) {
 }
 
 func TestResult_Value(t *testing.T) {
-	if got := result.OfOk(1).Value(); got != value.OfOk(1) {
-		t.Errorf("Value() = %v, want %v", got, value.OfOk(1))
+	if got := result.OfOk(1).Value(); got != optional.OfOk(1) {
+		t.Errorf("Value() = %v, want %v", got, optional.OfOk(1))
 	}
-	if got := result.OfError[int](errFail).Value(); got != value.OfNotOk[int]() {
-		t.Errorf("Value() = %v, want %v", got, value.OfNotOk[int]())
+	if got := result.OfError[int](errFail).Value(); got != optional.OfNotOk[int]() {
+		t.Errorf("Value() = %v, want %v", got, optional.OfNotOk[int]())
 	}
 }
 
 func TestTranspose(t *testing.T) {
-	if got := result.Transpose(result.OfError[value.Value[string]](errFail)); got != value.OfOk(result.OfError[string](errFail)) {
-		t.Errorf("Transpose() = %v, want %v", got, value.OfOk(result.OfError[string](errFail)))
+	if got := result.Transpose(result.OfError[optional.Value[string]](errFail)); got != optional.OfOk(result.OfError[string](errFail)) {
+		t.Errorf("Transpose() = %v, want %v", got, optional.OfOk(result.OfError[string](errFail)))
 	}
-	if got := result.Transpose(result.OfOk(value.OfNotOk[string]())); got != value.OfNotOk[result.Result[string]]() {
-		t.Errorf("Transpose() = %v, want %v", got, value.OfNotOk[result.Result[string]]())
+	if got := result.Transpose(result.OfOk(optional.OfNotOk[string]())); got != optional.OfNotOk[result.Result[string]]() {
+		t.Errorf("Transpose() = %v, want %v", got, optional.OfNotOk[result.Result[string]]())
 	}
-	if got := result.Transpose(result.OfOk(value.OfOk("foo"))); got != value.OfOk(result.OfOk("foo")) {
-		t.Errorf("Transpose() = %v, want %v", got, value.OfOk(result.OfOk("foo")))
+	if got := result.Transpose(result.OfOk(optional.OfOk("foo"))); got != optional.OfOk(result.OfOk("foo")) {
+		t.Errorf("Transpose() = %v, want %v", got, optional.OfOk(result.OfOk("foo")))
 	}
 }
 
 func TestTransposeValue(t *testing.T) {
-	if got := result.TransposeValue(value.OfNotOk[result.Result[int]]()); got != result.OfOk(value.OfNotOk[int]()) {
-		t.Errorf("TransposeValue() = %v, want %v", got, result.OfOk(value.OfNotOk[int]()))
+	if got := result.TransposeValue(optional.OfNotOk[result.Result[int]]()); got != result.OfOk(optional.OfNotOk[int]()) {
+		t.Errorf("TransposeValue() = %v, want %v", got, result.OfOk(optional.OfNotOk[int]()))
 	}
-	if got := result.TransposeValue(value.OfOk(result.OfError[int](errFail))); got != result.OfError[value.Value[int]](errFail) {
-		t.Errorf("TransposeValue() = %v, want %v", got, result.OfError[value.Value[int]](errFail))
+	if got := result.TransposeValue(optional.OfOk(result.OfError[int](errFail))); got != result.OfError[optional.Value[int]](errFail) {
+		t.Errorf("TransposeValue() = %v, want %v", got, result.OfError[optional.Value[int]](errFail))
 	}
-	if got := result.TransposeValue(value.OfOk(result.OfOk(1))); got != result.OfOk(value.OfOk(1)) {
-		t.Errorf("TransposeValue() = %v, want %v", got, result.OfOk(value.OfOk(1)))
+	if got := result.TransposeValue(optional.OfOk(result.OfOk(1))); got != result.OfOk(optional.OfOk(1)) {
+		t.Errorf("TransposeValue() = %v, want %v", got, result.OfOk(optional.OfOk(1)))
 	}
 }
 

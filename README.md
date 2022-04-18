@@ -20,23 +20,23 @@ go get github.com/phelmkamp/valor
 
 ### Value
 
-[`Value`](https://pkg.go.dev/github.com/phelmkamp/valor/value) is modeled after the "comma ok" idiom.
+[`optional.Value`](https://pkg.go.dev/github.com/phelmkamp/valor/optional) is modeled after the "comma ok" idiom.
 It contains a value (ok) or nothing (not ok).
 
 ```go
 m := map[string]int{"foo": 42}
 foo, ok := m["foo"]
-val := value.Of(foo, ok)
+val := optional.Of(foo, ok)
 fmt.Println(val.IsOk()) // true
 
 var foo2 int
 fmt.Println(val.Ok(&foo2), foo2) // true 42
 
-val2 := value.Map(val, strconv.Itoa)
+val2 := optional.Map(val, strconv.Itoa)
 fmt.Println(val2) // {42 true}
 
 bar, ok := m["bar"]
-val3 := value.Of(bar, ok)
+val3 := optional.Of(bar, ok)
 fmt.Println(val3.Or(-1))                          // -1
 fmt.Println(val3.OrZero())                        // 0
 fmt.Println(val3.OrElse(func() int { return 1 })) // 1
@@ -44,7 +44,7 @@ fmt.Println(val3.OrElse(func() int { return 1 })) // 1
 
 ### Result
 
-[`Result`](https://pkg.go.dev/github.com/phelmkamp/valor/result) contains either a value or an error.
+[`result.Result`](https://pkg.go.dev/github.com/phelmkamp/valor/result) contains either a value or an error.
 
 ```go
 // traditional
@@ -115,7 +115,7 @@ switch val {
 case val.OfOk():
     foo = val.MustOk()
     fmt.Println("Ok", foo)
-case value.OfNotOk[int]():
+case optional.OfNotOk[int]():
     fmt.Println("Not Ok")
     return
 }

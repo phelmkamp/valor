@@ -6,9 +6,9 @@
 package two
 
 import (
+	"github.com/phelmkamp/valor/optional"
 	"github.com/phelmkamp/valor/result"
 	"github.com/phelmkamp/valor/tuple/four"
-	"github.com/phelmkamp/valor/value"
 )
 
 // Tuple contains two values.
@@ -22,11 +22,11 @@ func TupleOf[T, T2 any](v T, v2 T2) Tuple[T, T2] {
 	return Tuple[T, T2]{V: v, V2: v2}
 }
 
-// TupleValueOf creates a value.Value of (v, v2) if ok is true.
+// TupleValueOf creates a optional.Value of (v, v2) if ok is true.
 // This aids interoperability with return values
 // that follow the "comma ok" idiom.
-func TupleValueOf[T, T2 any](v T, v2 T2, ok bool) value.Value[Tuple[T, T2]] {
-	return value.Of(TupleOf(v, v2), ok)
+func TupleValueOf[T, T2 any](v T, v2 T2, ok bool) optional.Value[Tuple[T, T2]] {
+	return optional.Of(TupleOf(v, v2), ok)
 }
 
 // TupleResultOf creates a result.Result of either (v, v2) or err.

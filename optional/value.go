@@ -2,22 +2,12 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
-package value
-
-import (
-	"fmt"
-	"github.com/phelmkamp/valor/optional"
-)
+package optional
 
 // Value either contains a value (ok) or nothing (not ok).
-//
-// Deprecated: use optional.Value instead.
 type Value[T any] struct {
-	optional.Value[T]
-}
-
-func (val Value[T]) String() string {
-	return fmt.Sprint(val.Value)
+	v  T
+	ok bool
 }
 
 // Of creates a Value of v if ok is true.
@@ -32,7 +22,7 @@ func Of[T any](v T, ok bool) Value[T] {
 
 // OfOk creates an ok Value of v.
 func OfOk[T any](v T) Value[T] {
-	return Value[T]{optional.OfOk(v)}
+	return Value[T]{v: v, ok: true}
 }
 
 // OfNotOk creates a Value that is not ok.
@@ -41,54 +31,117 @@ func OfNotOk[T any]() Value[T] {
 	return Value[T]{}
 }
 
+// IsOk returns whether v contains a value.
+func (val Value[T]) IsOk() bool {
+	return val.ok
+}
+
+// Ok sets dst to the underlying value if ok.
+// Returns true if ok, false if not ok.
+func (val Value[T]) Ok(dst *T) bool {
+	if !val.IsOk() {
+		return false
+	}
+	*dst = val.v
+	return true
+}
+
+// MustOk is like Ok but panics if not ok.
+// This simplifies access to the underlying value
+// in cases where it's known that val is ok.
+func (val Value[T]) MustOk() T {
+	if !val.IsOk() {
+		panic("Value.MustOk(): not ok")
+	}
+	return val.v
+}
+
+// Or returns the underlying value if ok, or def if not ok.
+func (val Value[T]) Or(def T) T {
+	if val.IsOk() {
+		return val.v
+	}
+	return def
+}
+
+// OrZero returns the underlying value if ok, or the zero value if not ok.
+func (val Value[T]) OrZero() T {
+	return val.v
+}
+
+// OrElse returns the underlying value if ok, or the result of f if not ok.
+func (val Value[T]) OrElse(f func() T) T {
+	if val.IsOk() {
+		return val.v
+	}
+	return f()
+}
+
 // OfOk creates an ok Value of the underlying value.
 // This aids in comparisons, enabling the use of val in switch statements.
 func (val Value[T]) OfOk() Value[T] {
-	return Value[T]{val.Value.OfOk()}
+	return OfOk(val.v)
 }
 
 // Do calls f with the underlying value if ok.
 // Does nothing if not ok.
 func (val Value[T]) Do(f func(T)) Value[T] {
-	return Value[T]{val.Value.Do(f)}
+	if val.IsOk() {
+		f(val.v)
+	}
+	return val
 }
 
 // Filter returns val if f returns true for the underlying value.
 // Otherwise returns a not-ok Value.
 func (val Value[T]) Filter(f func(T) bool) Value[T] {
-	return Value[T]{val.Value.Filter(f)}
+	if val.IsOk() && f(val.v) {
+		return val
+	}
+	return OfNotOk[T]()
 }
 
 // Map returns a Value of the result of f on the underlying value.
 // Returns a not-ok Value if val is not ok.
 func Map[T, T2 any](val Value[T], f func(T) T2) Value[T2] {
-	return Value[T2]{optional.Map(val.Value, f)}
+	if !val.IsOk() {
+		return OfNotOk[T2]()
+	}
+	return OfOk(f(val.v))
 }
 
 // FlatMap returns the result of f on the underlying value.
 // Returns a not-ok Value if val is not ok.
 func FlatMap[T, T2 any](val Value[T], f func(T) Value[T2]) Value[T2] {
-	optF := func(v T) optional.Value[T2] { return f(v).Value }
-	return Value[T2]{optional.FlatMap(val.Value, optF)}
+	if !val.IsOk() {
+		return OfNotOk[T2]()
+	}
+	return f(val.v)
 }
 
 // Contains returns whether the underlying value equals v.
 // Returns false if val is not ok.
 func Contains[T comparable](val Value[T], v T) bool {
-	return optional.Contains(val.Value, v)
+	return val.IsOk() && val.v == v
 }
 
 // ZipWith calls f with the underlying values of val and val2 and returns a Value of the result.
 // Returns a not-ok Value if either val or val2 is not ok.
 func ZipWith[T, T2, T3 any](val Value[T], val2 Value[T2], f func(T, T2) T3) Value[T3] {
-	return Value[T3]{optional.ZipWith(val.Value, val2.Value, f)}
+	if !val.IsOk() || !val2.IsOk() {
+		return OfNotOk[T3]()
+	}
+	return OfOk(f(val.v, val2.v))
 }
 
 // UnzipWith calls f with the underlying value of val and returns Values of the result.
 // Does nothing and returns not-ok Values if val is not ok.
 func UnzipWith[T, T2, T3 any](val Value[T], f func(T) (T2, T3)) (val2 Value[T2], val3 Value[T3]) {
-	optVal2, optVal3 := optional.UnzipWith(val.Value, f)
-	return Value[T2]{optVal2}, Value[T3]{optVal3}
+	if val.IsOk() {
+		val2.v, val3.v = f(val.v)
+		val2.ok, val3.ok = true, true
+	}
+	return
 }
 
 // Flatten returns the underlying Value of val.
@@ -97,5 +150,5 @@ func Flatten[T any](val Value[Value[T]]) Value[T] {
 	if !val.IsOk() {
 		return OfNotOk[T]()
 	}
-	return val.MustOk()
+	return val.v
 }
