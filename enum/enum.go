@@ -3,49 +3,61 @@ package enum
 import (
 	"fmt"
 	"github.com/phelmkamp/valor/optional"
+	"github.com/phelmkamp/valor/tuple/two"
 )
 
 // Enum is an enumerated type.
 //
-// It embeds an optional.Value of the currently selected member.
+// It wraps an optional.Value that is only ok if it's a member of the allowed values.
 type Enum[T comparable] struct {
-	optional.Value[Member[T]]
-	keys map[T]int
+	optional.Value[T]
+	members map[T]member // carry allowed values for validation
 }
 
-// Member is a value and its associated index.
-type Member[T comparable] struct {
-	Index int
-	Value T
+type member struct {
+	i    int // used to maintain order
+	name string
 }
 
-// Of creates an Enum of the allowed values.
-func Of[T comparable](allowed ...T) Enum[T] {
-	e := Enum[T]{keys: make(map[T]int)}
-	for i, v := range allowed {
-		e.keys[v] = i
+// Of creates an Enum of the given values.
+func Of[T comparable](vals ...T) Enum[T] {
+	e := Enum[T]{members: make(map[T]member)}
+	for i, v := range vals {
+		e.members[v] = member{i: i, name: fmt.Sprint(v)}
 	}
 	return e
 }
 
-// Select returns a copy of e with v as the currently selected member.
-// The optional.Value will be ok if v is allowed, not-ok otherwise.
-func (e Enum[T]) Select(v T) Enum[T] {
-	i, ok := e.keys[v]
-	e.Value = optional.Of(Member[T]{Index: i, Value: v}, ok)
+// OfNamed creates an Enum of the given named values.
+func OfNamed[T comparable](vals ...two.Tuple[string, T]) Enum[T] {
+	e := Enum[T]{members: make(map[T]member)}
+	for i, m := range vals {
+		e.members[m.V2] = member{i: i, name: m.V}
+	}
+	return e
+}
+
+// ValueOf returns an Enum that wraps v if v is a member of the allowed values.
+// Returns a not-ok Enum otherwise.
+func (e Enum[T]) ValueOf(v T) Enum[T] {
+	_, ok := e.members[v]
+	e.Value = optional.Of(v, ok)
 	return e
 }
 
 // String returns e formatted as a string.
 func (e Enum[T]) String() string {
-	return fmt.Sprint(e.Value)
+	val := optional.Map(e.Value, func(v T) string {
+		return e.members[v].name
+	})
+	return fmt.Sprint(val)
 }
 
-// Values returns the allowed values.
-func (e Enum[T]) Values() []T {
-	s := make([]T, len(e.keys))
-	for v, i := range e.keys {
-		s[i] = v
+// Members returns the allowed values.
+func (e Enum[T]) Members() []T {
+	s := make([]T, len(e.members))
+	for v, m := range e.members {
+		s[m.i] = v
 	}
 	return s
 }
