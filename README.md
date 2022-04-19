@@ -100,6 +100,26 @@ fmt.Println(val) // {{a 1} true}
 ```
 {% endraw %}
 
+### Enum
+
+[`enum.Enum`](https://pkg.go.dev/github.com/phelmkamp/valor/enum) is an enumerated type.
+It's initialized with a set of allowed values and then each "copy" optionally contains a currently selected value.
+
+```go
+const (
+	Clubs    = "clubs"
+	Diamonds = "diamonds"
+	Hearts   = "hearts"
+	Spades   = "spades"
+)
+var Suit = enum.OfString(Clubs, Diamonds, Hearts, Spades)
+func main() {
+    fmt.Println(Suit.Values())          // [clubs diamonds hearts spades]
+    fmt.Println(Suit.ValueOf("Foo"))    // { false}
+    fmt.Println(Suit.ValueOf(Hearts))   // {hearts true}
+}
+```
+
 ## Similar concepts in other languages
 
 ### Rust
