@@ -18,12 +18,18 @@ type Tuple[T, T2, T3, T4 any] struct {
 	V4 T4
 }
 
+// Values returns the contained values.
+// This aids in assigning to variables or function arguments.
+func (t Tuple[T, T2, T3, T4]) Values() (v T, v2 T2, v3 T3, v4 T4) {
+	return t.V, t.V2, t.V3, t.V4
+}
+
 // TupleOf creates a Tuple of (v, v2, v3, v4).
 func TupleOf[T, T2, T3, T4 any](v T, v2 T2, v3 T3, v4 T4) Tuple[T, T2, T3, T4] {
 	return Tuple[T, T2, T3, T4]{V: v, V2: v2, V3: v3, V4: v4}
 }
 
-// TupleValueOf creates a optional.Value of (v, v2, v3, v4) if ok is true.
+// TupleValueOf creates an optional.Value of (v, v2, v3, v4) if ok is true.
 // This aids interoperability with return values
 // that follow the "comma ok" idiom.
 func TupleValueOf[T, T2, T3, T4 any](v T, v2 T2, v3 T3, v4 T4, ok bool) optional.Value[Tuple[T, T2, T3, T4]] {

@@ -28,11 +28,13 @@ var (
 		two.TupleOf("banana", Banana),
 		two.TupleOf("orange", Orange),
 	)
+)
 
-	Event = enum.OfText(
-		time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
-	)
+// note: Event is in separate block to fix pkg.go.dev example
+
+var Event = enum.OfText(
+	time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
+	time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
 )
 
 func Example() {

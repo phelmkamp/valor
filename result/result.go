@@ -51,7 +51,7 @@ func OfError[T any](err error) Result[T] {
 }
 
 // OfValue creates a Result of the underlying value of val if ok or err otherwise.
-// This aids in converting a optional.Value to a Result.
+// This aids in converting an optional.Value to a Result.
 func OfValue[T any](val optional.Value[T], err error) Result[T] {
 	var res Result[T]
 	if !val.Ok(&res.v) {
@@ -71,7 +71,7 @@ func (res Result[T]) String() string {
 	return fmt.Sprintf("{%v %v}", res.v, res.err)
 }
 
-// Value returns a optional.Value containing either the
+// Value returns an optional.Value containing either the
 // underlying value or nothing.
 func (res Result[T]) Value() optional.Value[T] {
 	// Special case: errNil should be "not ok" so don't call IsError().
@@ -138,7 +138,7 @@ func (res Result[T]) OfError() Result[T] {
 	return OfError[T](res.err)
 }
 
-// Transpose converts res to a optional.Value of Result.
+// Transpose converts res to an optional.Value of Result.
 // Returns a not-ok optional.Value if the underlying optional.Value is not ok.
 // Otherwise, returns an ok optional.Value of a Result that contains the underlying value or error.
 func Transpose[T any](res Result[optional.Value[T]]) optional.Value[Result[T]] {
@@ -153,7 +153,7 @@ func Transpose[T any](res Result[optional.Value[T]]) optional.Value[Result[T]] {
 
 // TransposeValue converts val to a Result of optional.Value.
 // Returns an error Result if the underlying value is an error.
-// Otherwise, returns a Result of a optional.Value that contains the underlying value if ok or nothing if not ok.
+// Otherwise, returns a Result of an optional.Value that contains the underlying value if ok or nothing if not ok.
 func TransposeValue[T any](val optional.Value[Result[T]]) Result[optional.Value[T]] {
 	var v Result[T]
 	if !val.Ok(&v) {
