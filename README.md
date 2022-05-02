@@ -25,21 +25,19 @@ It contains a value (ok) or nothing (not ok).
 
 ```go
 m := map[string]int{"foo": 42}
-foo, ok := m["foo"]
-val := optional.Of(foo, ok)
+val := optional.OfIndex(m, "foo")
 fmt.Println(val.IsOk()) // true
 
-var foo2 int
-fmt.Println(val.Ok(&foo2), foo2) // true 42
+var foo int
+fmt.Println(val.Ok(&foo), foo) // true 42
 
-val2 := optional.Map(val, strconv.Itoa)
-fmt.Println(val2) // {42 true}
+valStr := optional.Map(val, strconv.Itoa)
+fmt.Println(valStr) // {42 true}
 
-bar, ok := m["bar"]
-val3 := optional.Of(bar, ok)
-fmt.Println(val3.Or(-1))                          // -1
-fmt.Println(val3.OrZero())                        // 0
-fmt.Println(val3.OrElse(func() int { return 1 })) // 1
+val = optional.OfIndex(m, "bar")
+fmt.Println(val.Or(-1))                          // -1
+fmt.Println(val.OrZero())                        // 0
+fmt.Println(val.OrElse(func() int { return 1 })) // 1
 ```
 
 ### Result
@@ -157,8 +155,8 @@ case res.OfError():
 
 ### More
 
- * https://en.wikipedia.org/wiki/Result_type
- * https://en.wikipedia.org/wiki/Option_type
+ * [https://en.wikipedia.org/wiki/Result_type](https://en.wikipedia.org/wiki/Result_type)
+ * [https://en.wikipedia.org/wiki/Option_type](https://en.wikipedia.org/wiki/Option_type)
 
 ## Releases
 

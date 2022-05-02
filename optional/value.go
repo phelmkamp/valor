@@ -25,6 +25,39 @@ func OfOk[T any](v T) Value[T] {
 	return Value[T]{v: v, ok: true}
 }
 
+// OfPointer creates a Value of the pointer p.
+// Returns a not-ok Value if p is nil.
+func OfPointer[T any](p *T) Value[*T] {
+	if p == nil {
+		return OfNotOk[*T]()
+	}
+	return OfOk(p)
+}
+
+// OfAssert performs the type assertion x.(T) and creates a Value of the result.
+// Returns a not-ok Value if the type assertion fails.
+func OfAssert[Tx, T any](x Tx) Value[T] {
+	v, ok := any(x).(T)
+	return Of(v, ok)
+}
+
+// OfIndex performs the map index m[k] and creates a Value of the result.
+// Returns a not-ok Value if k is not present in the map.
+func OfIndex[K comparable, V any, M ~map[K]V](m M, k K) Value[V] {
+	v, ok := m[k]
+	return Of(v, ok)
+}
+
+// OfReceive performs a blocking receive on ch and creates a Value of the result.
+// Returns a not-ok Value if ch is nil or closed.
+func OfReceive[T any](ch <-chan T) Value[T] {
+	if ch == nil {
+		return OfNotOk[T]()
+	}
+	v, ok := <-ch
+	return Of(v, ok)
+}
+
 // OfNotOk creates a Value that is not ok.
 // This aids in comparisons, enabling the use of Value in switch statements.
 func OfNotOk[T any]() Value[T] {
