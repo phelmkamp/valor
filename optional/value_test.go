@@ -5,6 +5,7 @@
 package optional_test
 
 import (
+	"bytes"
 	"encoding"
 	"fmt"
 	"io"
@@ -321,6 +322,27 @@ func TestZipWith(t *testing.T) {
 	}
 }
 
+// ExampleOfPointer demonstrates how to dereference a pointer without the risk of a panic due to nil.
+func ExampleOfPointer() {
+	var i *int
+	j := optional.Map(
+		optional.OfPointer(i),
+		func(p *int) int { return *p },
+	).OrZero()
+	fmt.Println(j)
+
+	i = new(int)
+	*i++
+	j = optional.Map(
+		optional.OfPointer(i),
+		func(p *int) int { return *p },
+	).OrZero()
+	fmt.Println(j)
+	// Output:
+	// 0
+	// 1
+}
+
 func TestOfPointer(t *testing.T) {
 	i := 1
 	type args struct {
@@ -353,20 +375,28 @@ func TestOfPointer(t *testing.T) {
 
 func TestOfAssert(t *testing.T) {
 	tm := time.Now()
+	// Stringer has concrete type Time
+	if got := optional.OfAssert[time.Time](fmt.Stringer(tm)); got != optional.OfOk(tm) {
+		t.Errorf("OfAssert() = %v, want %v", got, optional.OfOk(tm))
+	}
+	// Reader does not have concrete type Time
+	if got := optional.OfAssert[time.Time](io.Reader(bytes.NewBufferString(""))); got != optional.OfNotOk[time.Time]() {
+		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[time.Time]())
+	}
 	// Time does not implement Reader
-	if got := optional.OfAssert[time.Time, io.Reader](tm); got != optional.OfNotOk[io.Reader]() {
+	if got := optional.OfAssert[io.Reader](tm); got != optional.OfNotOk[io.Reader]() {
 		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[io.Reader]())
 	}
 	// Time does implement Stringer
-	if got := optional.OfAssert[time.Time, fmt.Stringer](tm); got != optional.OfOk[fmt.Stringer](tm) {
+	if got := optional.OfAssert[fmt.Stringer](tm); got != optional.OfOk[fmt.Stringer](tm) {
 		t.Errorf("OfAssert() = %v, want %v", got, optional.OfOk[fmt.Stringer](tm))
 	}
 	// Time (as Stringer) does implement TextMarshaler
-	if got := optional.OfAssert[fmt.Stringer, encoding.TextMarshaler](tm); got != optional.OfOk[encoding.TextMarshaler](tm) {
+	if got := optional.OfAssert[encoding.TextMarshaler](tm); got != optional.OfOk[encoding.TextMarshaler](tm) {
 		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[io.Reader]())
 	}
 	// nil does not implement Reader
-	if got := optional.OfAssert[fmt.Stringer, io.Reader](nil); got != optional.OfNotOk[io.Reader]() {
+	if got := optional.OfAssert[io.Reader, fmt.Stringer](nil); got != optional.OfNotOk[io.Reader]() {
 		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[io.Reader]())
 	}
 }
