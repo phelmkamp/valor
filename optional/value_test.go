@@ -276,6 +276,21 @@ func TestValue_Or(t *testing.T) {
 	}
 }
 
+// ExampleValue_OrElse demonstrates that OrElse can be used to work with a cache.
+func ExampleValue_OrElse() {
+	cache := make(map[string]string)
+	load := func(k string) string {
+		// expensive call to load value goes here
+		v := "bar"
+		cache[k] = v
+		return v
+	}
+
+	v := optional.OfIndex(cache, "foo").OrElse(func() string { return load("foo") })
+	fmt.Println(v)
+	// Output: bar
+}
+
 func TestValue_OrElse(t *testing.T) {
 	rand := rand.NewSource(42)
 	if got := optional.OfNotOk[int64]().OrElse(rand.Int63); got != 3440579354231278675 {
