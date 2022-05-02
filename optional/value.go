@@ -36,7 +36,7 @@ func OfPointer[T any](p *T) Value[*T] {
 
 // OfAssert performs the type assertion x.(T) and creates a Value of the result.
 // Returns a not-ok Value if the type assertion fails.
-func OfAssert[Tx, T any](x Tx) Value[T] {
+func OfAssert[T, Tx any](x Tx) Value[T] {
 	v, ok := any(x).(T)
 	return Of(v, ok)
 }
