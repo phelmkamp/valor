@@ -5,16 +5,20 @@
 package optional_test
 
 import (
+	"encoding"
 	"fmt"
-	"github.com/phelmkamp/valor/optional"
-	"github.com/phelmkamp/valor/tuple/four"
-	"github.com/phelmkamp/valor/tuple/singleton"
-	"github.com/phelmkamp/valor/tuple/two"
+	"io"
 	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
 	"testing"
+	"time"
+
+	"github.com/phelmkamp/valor/optional"
+	"github.com/phelmkamp/valor/tuple/four"
+	"github.com/phelmkamp/valor/tuple/singleton"
+	"github.com/phelmkamp/valor/tuple/two"
 )
 
 // type checks
@@ -26,21 +30,19 @@ var (
 
 func Example() {
 	m := map[string]int{"foo": 42}
-	foo, ok := m["foo"]
-	val := optional.Of(foo, ok)
+	val := optional.OfIndex(m, "foo")
 	fmt.Println(val.IsOk()) // true
 
-	var foo2 int
-	fmt.Println(val.Ok(&foo2), foo2) // true 42
+	var foo int
+	fmt.Println(val.Ok(&foo), foo) // true 42
 
-	val2 := optional.Map(val, strconv.Itoa)
-	fmt.Println(val2) // {42 true}
+	valStr := optional.Map(val, strconv.Itoa)
+	fmt.Println(valStr) // {42 true}
 
-	bar, ok := m["bar"]
-	val3 := optional.Of(bar, ok)
-	fmt.Println(val3.Or(-1))                          // -1
-	fmt.Println(val3.OrZero())                        // 0
-	fmt.Println(val3.OrElse(func() int { return 1 })) // 1
+	val = optional.OfIndex(m, "bar")
+	fmt.Println(val.Or(-1))                          // -1
+	fmt.Println(val.OrZero())                        // 0
+	fmt.Println(val.OrElse(func() int { return 1 })) // 1
 
 	// switch
 	switch val {
@@ -57,7 +59,7 @@ func Example() {
 	// -1
 	// 0
 	// 1
-	// 42
+	// Not Ok
 }
 
 func TestValue_Ok(t *testing.T) {
@@ -316,5 +318,114 @@ func TestZipWith(t *testing.T) {
 	}
 	if got := optional.ZipWith(optional.OfOk([]string{"foo", "bar"}), optional.OfOk(","), strings.Join); got != optional.OfOk("foo,bar") {
 		t.Errorf("ZipWith() = %v, want %v", got, optional.OfOk("foo,bar"))
+	}
+}
+
+func TestOfPointer(t *testing.T) {
+	i := 1
+	type args struct {
+		p *int
+	}
+	tests := []struct {
+		name string
+		args args
+		want optional.Value[*int]
+	}{
+		{
+			name: "nil",
+			args: args{p: nil},
+			want: optional.OfNotOk[*int](),
+		},
+		{
+			name: "1",
+			args: args{p: &i},
+			want: optional.OfOk(&i),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := optional.OfPointer(tt.args.p); got != tt.want {
+				t.Errorf("OfPointer() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestOfAssert(t *testing.T) {
+	tm := time.Now()
+	// Time does not implement Reader
+	if got := optional.OfAssert[time.Time, io.Reader](tm); got != optional.OfNotOk[io.Reader]() {
+		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[io.Reader]())
+	}
+	// Time does implement Stringer
+	if got := optional.OfAssert[time.Time, fmt.Stringer](tm); got != optional.OfOk[fmt.Stringer](tm) {
+		t.Errorf("OfAssert() = %v, want %v", got, optional.OfOk[fmt.Stringer](tm))
+	}
+	// Time (as Stringer) does implement TextMarshaler
+	if got := optional.OfAssert[fmt.Stringer, encoding.TextMarshaler](tm); got != optional.OfOk[encoding.TextMarshaler](tm) {
+		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[io.Reader]())
+	}
+	// nil does not implement Reader
+	if got := optional.OfAssert[fmt.Stringer, io.Reader](nil); got != optional.OfNotOk[io.Reader]() {
+		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[io.Reader]())
+	}
+}
+
+func TestOfIndex(t *testing.T) {
+	type args struct {
+		m map[string]int
+		k string
+	}
+	tests := []struct {
+		name string
+		args args
+		want optional.Value[int]
+	}{
+		{
+			name: "nil",
+			args: args{m: nil, k: "foo"},
+			want: optional.OfNotOk[int](),
+		},
+		{
+			name: "empty",
+			args: args{m: make(map[string]int), k: "foo"},
+			want: optional.OfNotOk[int](),
+		},
+		{
+			name: "missing",
+			args: args{m: map[string]int{"bar": 42}, k: "foo"},
+			want: optional.OfNotOk[int](),
+		},
+		{
+			name: "ok",
+			args: args{m: map[string]int{"foo": 42}, k: "foo"},
+			want: optional.OfOk(42),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := optional.OfIndex(tt.args.m, tt.args.k); got != tt.want {
+				t.Errorf("OfIndex() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestOfReceive(t *testing.T) {
+	// nil
+	if got := optional.OfReceive[int](nil); got != optional.OfNotOk[int]() {
+		t.Errorf("OfReceive() = %v, want %v", got, optional.OfNotOk[int]())
+	}
+	// closed
+	ch := make(chan int)
+	close(ch)
+	if got := optional.OfReceive(ch); got != optional.OfNotOk[int]() {
+		t.Errorf("OfReceive() = %v, want %v", got, optional.OfNotOk[int]())
+	}
+	// ok
+	ch = make(chan int, 1)
+	ch <- 42
+	if got := optional.OfReceive(ch); got != optional.OfOk(42) {
+		t.Errorf("OfReceive() = %v, want %v", got, optional.OfOk(42))
 	}
 }
