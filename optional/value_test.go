@@ -5,6 +5,7 @@
 package optional_test
 
 import (
+	"bytes"
 	"encoding"
 	"fmt"
 	"io"
@@ -377,6 +378,10 @@ func TestOfAssert(t *testing.T) {
 	// Stringer has concrete type Time
 	if got := optional.OfAssert[time.Time](fmt.Stringer(tm)); got != optional.OfOk(tm) {
 		t.Errorf("OfAssert() = %v, want %v", got, optional.OfOk(tm))
+	}
+	// Reader does not have concrete type Time
+	if got := optional.OfAssert[time.Time](io.Reader(bytes.NewBufferString(""))); got != optional.OfNotOk[time.Time]() {
+		t.Errorf("OfAssert() = %v, want %v", got, optional.OfNotOk[time.Time]())
 	}
 	// Time does not implement Reader
 	if got := optional.OfAssert[io.Reader](tm); got != optional.OfNotOk[io.Reader]() {
