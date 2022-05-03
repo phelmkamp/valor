@@ -7,9 +7,11 @@ package optional_test
 import (
 	"bytes"
 	"encoding"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math/rand"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -27,6 +29,9 @@ var (
 	_ = optional.OfNotOk[*struct{}]()
 	_ = optional.OfNotOk[map[string]struct{}]()
 	_ = optional.OfNotOk[[]struct{}]()
+
+	_ json.Marshaler   = optional.Value[int]{}
+	_ json.Unmarshaler = &optional.Value[int]{}
 )
 
 func Example() {
@@ -472,5 +477,81 @@ func TestOfReceive(t *testing.T) {
 	ch <- 42
 	if got := optional.OfReceive(ch); got != optional.OfOk(42) {
 		t.Errorf("OfReceive() = %v, want %v", got, optional.OfOk(42))
+	}
+}
+
+func TestValue_MarshalJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		val     optional.Value[string]
+		want    []byte
+		wantErr bool
+	}{
+		{
+			name: "not ok",
+			val:  optional.OfNotOk[string](),
+			want: []byte(`null`),
+		},
+		{
+			name: "empty",
+			val:  optional.OfOk(""),
+			want: []byte(`""`),
+		},
+		{
+			name: "foo",
+			val:  optional.OfOk("foo"),
+			want: []byte(`"foo"`),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, err := tt.val.MarshalJSON(); !reflect.DeepEqual(got, tt.want) || (err != nil && !tt.wantErr) {
+				t.Errorf("MarshalJSON() = %v, %v, want %v %v", got, err, tt.want, nil)
+			}
+		})
+	}
+}
+
+func TestValue_UnmarshalJSON(t *testing.T) {
+	type args struct {
+		data []byte
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    optional.Value[string]
+		wantErr bool
+	}{
+		{
+			name:    "invalid",
+			args:    args{data: []byte(`}`)},
+			wantErr: true,
+		},
+		{
+			name: "null",
+			args: args{data: []byte(`null`)},
+			want: optional.OfNotOk[string](),
+		},
+		{
+			name: "empty",
+			args: args{data: []byte(`""`)},
+			want: optional.OfOk(""),
+		},
+		{
+			name: "foo",
+			args: args{data: []byte(`"foo"`)},
+			want: optional.OfOk("foo"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var val optional.Value[string]
+			if err := val.UnmarshalJSON(tt.args.data); err != nil && !tt.wantErr {
+				t.Errorf("UnmarshalJSON() = %v, want %v", err, nil)
+			}
+			if val != tt.want {
+				t.Errorf("val after UnmarshalJSON() = %v, want %v", val, tt.want)
+			}
+		})
 	}
 }

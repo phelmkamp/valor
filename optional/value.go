@@ -4,6 +4,10 @@
 
 package optional
 
+import (
+	"encoding/json"
+)
+
 // Value either contains a value (ok) or nothing (not ok).
 type Value[T any] struct {
 	v  T
@@ -132,6 +136,32 @@ func (val Value[T]) Filter(f func(T) bool) Value[T] {
 		return val
 	}
 	return OfNotOk[T]()
+}
+
+// MarshalJSON encodes val as JSON.
+// Marshals the underlying value if ok, the literal null if not ok.
+func (val Value[T]) MarshalJSON() ([]byte, error) {
+	if !val.IsOk() {
+		return []byte("null"), nil
+	}
+	return json.Marshal(val.v)
+}
+
+// UnmarshalJSON decodes data into val.
+// val will be ok if the underlying value was unmarshaled successfully.
+// Does nothing if data is the literal null.
+func (val *Value[T]) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		// by convention, null is no-op
+		return nil
+	}
+	// unmarshal into temp first in case of error
+	var temp T
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+	val.v, val.ok = temp, true
+	return nil
 }
 
 // Map returns a Value of the result of f on the underlying value.
