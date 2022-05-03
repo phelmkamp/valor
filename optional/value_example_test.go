@@ -1,7 +1,9 @@
 package optional_test
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/phelmkamp/valor/optional"
 )
@@ -48,4 +50,42 @@ func Example_channel() {
 	// Output:
 	// {0 true}
 	// {0 false}
+}
+
+// Example_json demonstrates that a Value can be marshaled to and unmarshaled from JSON.
+func Example_json() {
+	type Obj struct {
+		Name string              `json:"name"`
+		Val  optional.Value[int] `json:"val"`
+	}
+	b, err := json.Marshal(Obj{Name: "foo", Val: optional.OfOk(0)})
+	if err != nil {
+		log.Fatalf("json.Marshal() failed: %v", err)
+	}
+	fmt.Println(string(b))
+	var obj Obj
+	err = json.Unmarshal(b, &obj)
+	if err != nil {
+		log.Fatalf("json.Unmarshal() failed: %v", err)
+	}
+	fmt.Println(obj)
+	fmt.Println()
+
+	b, err = json.Marshal(Obj{Name: "foo", Val: optional.OfNotOk[int]()})
+	if err != nil {
+		log.Fatalf("json.Marshal() failed: %v", err)
+	}
+	fmt.Println(string(b))
+	obj = Obj{}
+	err = json.Unmarshal(b, &obj)
+	if err != nil {
+		log.Fatalf("json.Unmarshal() failed: %v", err)
+	}
+	fmt.Println(obj)
+	// Output:
+	// {"name":"foo","val":0}
+	// {foo {0 true}}
+	//
+	// {"name":"foo","val":null}
+	// {foo {0 false}}
 }
