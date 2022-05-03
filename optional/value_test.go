@@ -490,7 +490,7 @@ func TestValue_MarshalJSON(t *testing.T) {
 		{
 			name: "not ok",
 			val:  optional.OfNotOk[string](),
-			want: []byte("null"),
+			want: []byte(`null`),
 		},
 		{
 			name: "empty",
@@ -523,8 +523,13 @@ func TestValue_UnmarshalJSON(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name:    "invalid",
+			args:    args{data: []byte(`}`)},
+			wantErr: true,
+		},
+		{
 			name: "null",
-			args: args{data: []byte("null")},
+			args: args{data: []byte(`null`)},
 			want: optional.OfNotOk[string](),
 		},
 		{
