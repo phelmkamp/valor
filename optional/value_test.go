@@ -555,3 +555,12 @@ func TestValue_UnmarshalJSON(t *testing.T) {
 		})
 	}
 }
+
+func TestValue_Unpack(t *testing.T) {
+	if v, ok := optional.OfNotOk[string]().Unpack(); v != "" || ok {
+		t.Errorf("Unpack() = %v %v, want %v %v", v, ok, "", false)
+	}
+	if v, ok := optional.OfOk("foo").Unpack(); v != "foo" || !ok {
+		t.Errorf("Unpack() = %v %v, want %v %v", v, ok, "foo", true)
+	}
+}
