@@ -164,6 +164,12 @@ func (val *Value[T]) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Unpack returns the underlying value and whether it is ok.
+// This aids in assigning to variables or function arguments.
+func (val Value[T]) Unpack() (T, bool) {
+	return val.v, val.ok
+}
+
 // Map returns a Value of the result of f on the underlying value.
 // Returns a not-ok Value if val is not ok.
 func Map[T, T2 any](val Value[T], f func(T) T2) Value[T2] {
