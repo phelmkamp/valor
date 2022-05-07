@@ -40,3 +40,10 @@ func TupleValueOf[T, T2, T3 any](v T, v2 T2, v3 T3, ok bool) optional.Value[Tupl
 func TupleResultOf[T, T2, T3 any](v T, v2 T2, v3 T3, err error) result.Result[Tuple[T, T2, T3]] {
 	return result.Of(TupleOf(v, v2, v3), err)
 }
+
+// TupleMap returns a Tuple with each value replaced by the result of each function.
+//
+// funcs.Ident can be used to leave the value unchanged.
+func TupleMap[T, T2, T3, Tp, T2p, T3p any](t Tuple[T, T2, T3], f func(T) Tp, f2 func(T2) T2p, f3 func(T3) T3p) Tuple[Tp, T2p, T3p] {
+	return TupleOf(f(t.V), f2(t.V2), f3(t.V3))
+}
