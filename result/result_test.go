@@ -7,15 +7,16 @@ package result_test
 import (
 	"errors"
 	"fmt"
-	"github.com/phelmkamp/valor/optional"
-	"github.com/phelmkamp/valor/result"
-	"github.com/phelmkamp/valor/tuple/unit"
 	"io"
 	"io/fs"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/phelmkamp/valor/optional"
+	"github.com/phelmkamp/valor/result"
+	"github.com/phelmkamp/valor/tuple/unit"
 )
 
 // type checks
@@ -256,5 +257,14 @@ func TestResult_OfError(t *testing.T) {
 	}
 	if got := result.OfOk(1.0).OfError(); got != result.OfError[float64](nil) {
 		t.Errorf("OfError() = %v, want %v", got, result.OfError[float64](nil))
+	}
+}
+
+func TestResult_Unpack(t *testing.T) {
+	if v, err := result.OfError[string](errFail).Unpack(); v != "" || err != errFail {
+		t.Errorf("Unpack() = %v %v, want %v %v", v, err, "", errFail)
+	}
+	if v, err := result.OfOk("foo").Unpack(); v != "foo" || err != nil {
+		t.Errorf("Unpack() = %v %v, want %v %v", v, err, "foo", nil)
 	}
 }
