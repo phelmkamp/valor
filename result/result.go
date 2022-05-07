@@ -7,6 +7,7 @@ package result
 import (
 	"errors"
 	"fmt"
+
 	"github.com/phelmkamp/valor/optional"
 )
 
@@ -69,6 +70,12 @@ func (res Result[T]) IsError() bool {
 // String returns res formatted as a string.
 func (res Result[T]) String() string {
 	return fmt.Sprintf("{%v %v}", res.v, res.err)
+}
+
+// Unpack returns the underlying value and error.
+// This aids in assigning to variables or function arguments.
+func (res Result[T]) Unpack() (T, error) {
+	return res.v, res.err
 }
 
 // Value returns an optional.Value containing either the
