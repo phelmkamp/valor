@@ -6,8 +6,12 @@ package four_test
 
 import (
 	"fmt"
-	"github.com/phelmkamp/valor/tuple/four"
+	"strconv"
 	"testing"
+	"time"
+
+	"github.com/phelmkamp/valor/funcs"
+	"github.com/phelmkamp/valor/tuple/four"
 )
 
 func get() (string, int, float32, []int, bool) {
@@ -25,5 +29,13 @@ func TestTuple_Values(t *testing.T) {
 	v, v2, v3, v4 := tup.Values()
 	if v != 1 || v2 != "two" || v3 != 3.0 || v4[0] != 4 {
 		t.Errorf("Values() = %v %v %v %v, want %v %v %v %v", v, v2, v3, v4, 1, "two", 3.0, []int{4})
+	}
+}
+
+func Test_TupleMap(t *testing.T) {
+	tup := four.TupleOf(1, "two", 3.0, time.Time{})
+	got := four.TupleMap(tup, strconv.Itoa, funcs.Ident[string], funcs.Ident[float64], funcs.Ident[time.Time])
+	if got != four.TupleOf("1", "two", 3.0, time.Time{}) {
+		t.Errorf("TupleMap() = %v, want %v", got, four.TupleOf("1", "two", 3.0, time.Time{}))
 	}
 }
