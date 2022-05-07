@@ -41,6 +41,13 @@ func TupleResultOf[T, T2 any](v T, v2 T2, err error) result.Result[Tuple[T, T2]]
 	return result.Of(TupleOf(v, v2), err)
 }
 
+// TupleMap returns a Tuple with each value replaced by the result of each function.
+//
+// funcs.Ident can be used to leave the value unchanged.
+func TupleMap[Tp, T2p, T, T2 any](t Tuple[T, T2], f func(T) Tp, f2 func(T2) T2p) (tp Tuple[Tp, T2p]) {
+	return TupleOf(f(t.V), f2(t.V2))
+}
+
 // TupleZip combines the values of t and t2 into a four.Tuple.
 func TupleZip[T, T2, T3, T4 any](t Tuple[T, T3], t2 Tuple[T2, T4]) four.Tuple[T, T2, T3, T4] {
 	return four.TupleOf(t.V, t2.V, t.V2, t2.V2)

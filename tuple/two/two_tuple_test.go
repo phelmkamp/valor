@@ -6,8 +6,11 @@ package two_test
 
 import (
 	"fmt"
-	"github.com/phelmkamp/valor/tuple/two"
+	"strconv"
 	"testing"
+
+	"github.com/phelmkamp/valor/funcs"
+	"github.com/phelmkamp/valor/tuple/two"
 )
 
 func get() (string, int, bool) {
@@ -25,5 +28,13 @@ func TestTuple_Values(t *testing.T) {
 	v, v2 := tup.Values()
 	if v != 1 || v2 != "two" {
 		t.Errorf("Values() = %v %v, want %v %v", v, v2, 1, "two")
+	}
+}
+
+func Test_TupleMap(t *testing.T) {
+	tup := two.TupleOf(1, "two")
+	got := two.TupleMap(tup, strconv.Itoa, funcs.Ident[string])
+	if got != two.TupleOf("1", "two") {
+		t.Errorf("TupleMap() = %v, want %v", got, two.TupleOf("1", "two"))
 	}
 }
