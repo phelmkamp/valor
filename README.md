@@ -165,4 +165,4 @@ Instead, functionality will be deprecated as needed with plans to remove in v1.
 
 ## Linter
 
-[valorcheck](https://github.com/phelmkamp/valor/valorcheck) is a linter to check that access to an optional value is guarded against the case where the value is not present.
+[valorcheck](https://github.com/phelmkamp/valor/tree/main/valorcheck#readme) is a linter to check that access to an optional value is guarded against the case where the value is not present.

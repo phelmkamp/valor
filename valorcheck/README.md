@@ -2,6 +2,8 @@
 
 Linter to check that access to an optional value is guarded against the case where the value is not present.
 
+![VS Code](./valorcheck_vscode.png)
+
 ## Installation
 
 ```bash
