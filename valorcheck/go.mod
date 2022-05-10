@@ -2,7 +2,7 @@ module github.com/phelmkamp/valor/valorcheck
 
 go 1.18
 
-require golang.org/x/tools v0.1.10
+require golang.org/x/tools v0.1.11-0.20220316014157-77aa08bb151a
 
 require (
 	github.com/phelmkamp/valor v0.11.0 // indirect

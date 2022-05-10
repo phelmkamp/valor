@@ -1,0 +1,9 @@
+linters:
+  enable:
+   - valorcheck
+linters-settings:
+  custom:
+    valorcheck:
+      path: plugin.so
+      description: Checks that access to an optional value is guarded against the case where the value is not present.
+      original-url: github.com/phelmkamp/valor/valorcheck
