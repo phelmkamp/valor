@@ -162,3 +162,7 @@ case res.OfError():
 
 This module is currently at v0 but every effort will be made to avoid breaking changes.
 Instead, functionality will be deprecated as needed with plans to remove in v1.
+
+## Linter
+
+[valorcheck](https://github.com/phelmkamp/valor/valorcheck) is a linter to check that access to an optional value is guarded against the case where the value is not present.
