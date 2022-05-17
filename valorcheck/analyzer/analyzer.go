@@ -113,7 +113,8 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 		return v
 	}
 
-	if xType.Obj().Pkg().Path() == "github.com/phelmkamp/valor/optional" {
+	switch xType.Obj().Pkg().Path() {
+	case "github.com/phelmkamp/valor/optional", "github.com/phelmkamp/valor/enum":
 		v.checkOpt(sel, xVar)
 	}
 
@@ -122,7 +123,7 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 
 func (v *visitor) checkOpt(sel *ast.SelectorExpr, optVar *types.Var) {
 	switch sel.Sel.Name {
-	case "IsOk":
+	case "IsOk", "OfOk":
 		v.guarded[optVar] = struct{}{}
 	case "MustOk":
 		if _, ok := v.guarded[optVar]; !ok {
