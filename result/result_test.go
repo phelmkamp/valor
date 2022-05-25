@@ -16,6 +16,7 @@ import (
 
 	"github.com/phelmkamp/valor/optional"
 	"github.com/phelmkamp/valor/result"
+	"github.com/phelmkamp/valor/tuple/two"
 	"github.com/phelmkamp/valor/tuple/unit"
 )
 
@@ -35,12 +36,24 @@ func Example() {
 	}
 
 	// try to get value, printing wrapped error if not ok
+	// note: only relevant values are in-scope after handling
 	var n int
 	if res := result.Of(w.Write([]byte("foo"))); !res.Value().Ok(&n) {
 		fmt.Println(res.Errorf("Write() failed: %w").Error())
 		return
 	}
 	fmt.Println(n)
+
+	// same as above with multiple values
+	var s string
+	var b bool
+	if res := two.TupleResultOf(multi(false)); !res.Value().Do(
+		func(t two.Tuple[string, bool]) { s, b = t.Values() },
+	).IsOk() {
+		fmt.Println(res.Errorf("multi() failed: %w").Error())
+		return
+	}
+	fmt.Println(s, b)
 
 	// errors.Is
 	if res := result.Of(w.Write([]byte("foo"))); res.ErrorIs(io.ErrShortWrite) {
@@ -73,6 +86,7 @@ func Example() {
 		return
 	}
 	// Output: 3
+	// foo true
 	// fail
 	// Ok
 }
@@ -92,6 +106,13 @@ func leaf(fail bool) (int, error) {
 		return 0, errFail
 	}
 	return 1, nil
+}
+
+func multi(fail bool) (string, bool, error) {
+	if fail {
+		return "", false, errFail
+	}
+	return "foo", true, nil
 }
 
 func TestOf(t *testing.T) {
