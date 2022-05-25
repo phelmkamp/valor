@@ -28,7 +28,7 @@ func main() {
 	result.Of(w.Write(nil)).Value().MustOk() // UNGUARDED
 	n := res.Value().MustOk()                // UNGUARDED
 	Fruit.ValueOf("apple").MustOk()          // UNGUARDED
-	s := f.ValueOf("apple").MustOk()         // UNGUARDED
+	s := f.MustOk()                          // UNGUARDED
 	val.Ok(&i)                               // UNCHECKED
 	res.Value().Ok(&n)                       // UNCHECKED
 	f.Ok(&s)                                 // UNCHECKED

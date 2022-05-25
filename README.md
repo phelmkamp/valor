@@ -52,9 +52,20 @@ if res := result.Of(w.Write([]byte("foo"))); res.IsError() {
 }
 
 // try to get value, printing wrapped error if not ok
+// note: only relevant values are in-scope after handling
 var n int
 if res := result.Of(w.Write([]byte("foo"))); !res.Value().Ok(&n) {
     fmt.Println(res.Errorf("Write() failed: %w").Error())
+    return
+}
+
+// same as above with multiple values
+var s string
+var b bool
+if res := two.TupleResultOf(multi(false)); !res.Value().Do(
+    func(t two.Tuple[string, bool]) { s, b = t.Values() },
+).IsOk() {
+    fmt.Println(res.Errorf("multi() failed: %w").Error())
     return
 }
 
