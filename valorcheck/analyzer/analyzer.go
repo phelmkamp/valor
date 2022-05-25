@@ -8,6 +8,7 @@ import (
 	"go/ast"
 	"go/types"
 
+	"github.com/phelmkamp/valor/tuple/unit"
 	"golang.org/x/tools/go/analysis"
 )
 
@@ -21,8 +22,8 @@ func run(pass *analysis.Pass) (any, error) {
 	for _, f := range pass.Files {
 		v := visitor{
 			pass:    pass,
-			guarded: make(map[*types.Var]struct{}),
-			checked: make(map[*ast.SelectorExpr]struct{}),
+			guarded: make(map[*types.Var]unit.Type),
+			checked: make(map[*ast.SelectorExpr]unit.Type),
 		}
 		ast.Walk(&v, f)
 
@@ -32,8 +33,8 @@ func run(pass *analysis.Pass) (any, error) {
 
 type visitor struct {
 	pass    *analysis.Pass
-	guarded map[*types.Var]struct{}
-	checked map[*ast.SelectorExpr]struct{}
+	guarded map[*types.Var]unit.Type
+	checked map[*ast.SelectorExpr]unit.Type
 }
 
 func (v *visitor) Visit(node ast.Node) ast.Visitor {
@@ -48,7 +49,7 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 			if !ok {
 				continue
 			}
-			v.checked[sel] = struct{}{}
+			v.checked[sel] = unit.Unit
 		}
 		return v
 	}
@@ -69,7 +70,7 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 		if !ok {
 			return v
 		}
-		v.checked[sel] = struct{}{}
+		v.checked[sel] = unit.Unit
 		return v
 	}
 
@@ -124,7 +125,7 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 func (v *visitor) checkOpt(sel *ast.SelectorExpr, optVar *types.Var) {
 	switch sel.Sel.Name {
 	case "IsOk", "OfOk":
-		v.guarded[optVar] = struct{}{}
+		v.guarded[optVar] = unit.Unit
 	case "MustOk":
 		if _, ok := v.guarded[optVar]; !ok {
 			// TODO: consider calling Report with suggested fix
