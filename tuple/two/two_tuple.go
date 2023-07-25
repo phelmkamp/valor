@@ -59,7 +59,7 @@ func TupleUnzip[T, T2, T3, T4 any](t four.Tuple[T, T2, T3, T4]) (Tuple[T, T3], T
 }
 
 // TupleIter converts an iterator of two values into an iterator of Tuples.
-func TupleIter[T, T2 any](iter func(yield func(T, T2) bool)) optional.Iter[Tuple[T, T2]] {
+func TupleIter[T, T2 any](iter func(yield func(T, T2) bool)) func(yield func(Tuple[T, T2]) bool) {
 	return func(yield func(t Tuple[T, T2]) bool) {
 		iter(func(v T, v2 T2) bool {
 			return yield(TupleOf(v, v2))

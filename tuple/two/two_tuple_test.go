@@ -52,14 +52,14 @@ func Test_TupleMap(t *testing.T) {
 
 func Test_TupleIter(t *testing.T) {
 	var m map[int]string
-	if got := two.TupleIter(kvs(m)).First(); got.IsOk() {
+	if got := optional.First(two.TupleIter(kvs(m))); got.IsOk() {
 		t.Errorf("First() of empty map = %v, want %v", got, optional.OfNotOk[two.Tuple[int, string]]())
 	}
 	m = map[int]string{
 		0: "a",
 	}
 	want := two.TupleValueOf(0, "a", true)
-	if got := two.TupleIter(kvs(m)).First(); !optional.Equal(got, want) {
+	if got := optional.First(two.TupleIter(kvs(m))); !optional.Equal(got, want) {
 		t.Errorf("First() = %v, want %v", got, want)
 	}
 }
