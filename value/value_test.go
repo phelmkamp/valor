@@ -1,4 +1,4 @@
-// Copyright 2022 phelmkamp. All rights reserved.
+// Copyright 2023 phelmkamp. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
@@ -6,15 +6,16 @@ package value_test
 
 import (
 	"fmt"
-	"github.com/phelmkamp/valor/tuple/four"
-	"github.com/phelmkamp/valor/tuple/singleton"
-	"github.com/phelmkamp/valor/tuple/two"
-	"github.com/phelmkamp/valor/value"
 	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/phelmkamp/valor/tuple/four"
+	"github.com/phelmkamp/valor/tuple/singleton"
+	"github.com/phelmkamp/valor/tuple/two"
+	"github.com/phelmkamp/valor/value"
 )
 
 // type checks

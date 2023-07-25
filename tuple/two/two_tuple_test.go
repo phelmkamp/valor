@@ -1,4 +1,4 @@
-// Copyright 2022 phelmkamp. All rights reserved.
+// Copyright 2023 phelmkamp. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
@@ -18,7 +18,7 @@ func get() (string, int, bool) {
 	return "a", 1, true
 }
 
-func mapIter[K comparable, V any](m map[K]V) func(yield func(K, V) bool) {
+func kvs[K comparable, V any](m map[K]V) func(yield func(K, V) bool) {
 	return func(yield func(K, V) bool) {
 		for k, v := range m {
 			if !yield(k, v) {
@@ -52,14 +52,14 @@ func Test_TupleMap(t *testing.T) {
 
 func Test_TupleIter(t *testing.T) {
 	var m map[int]string
-	if got := optional.First(two.TupleIter(mapIter(m))); got.IsOk() {
+	if got := two.TupleIter(kvs(m)).First(); got.IsOk() {
 		t.Errorf("First() of empty map = %v, want %v", got, optional.OfNotOk[two.Tuple[int, string]]())
 	}
 	m = map[int]string{
 		0: "a",
 	}
 	want := two.TupleValueOf(0, "a", true)
-	if got := optional.First(two.TupleIter(mapIter(m))); !optional.Equal(got, want) {
+	if got := two.TupleIter(kvs(m)).First(); !optional.Equal(got, want) {
 		t.Errorf("First() = %v, want %v", got, want)
 	}
 }

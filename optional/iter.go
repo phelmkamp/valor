@@ -2,13 +2,15 @@ package optional
 
 import "github.com/phelmkamp/valor/constraints"
 
-// Iter is an iterator that calls yield for each value.
-// It stops if yield returns false.
+// Iter is an iterator over a collection of elements.
 type Iter[T any] func(yield func(T) bool)
 
-// First returns a Value of the first element yielded by iter.
-// Returns a not-ok Value if no element is yielded.
-func First[T any](iter Iter[T]) Value[T] {
+// NumIter is an iterator over a collection of numbers.
+type NumIter[T constraints.Integer | constraints.Float] func(yield func(T) bool)
+
+// First returns a Value of the first element.
+// Returns a not-ok Value if there are no elements.
+func (iter Iter[T]) First() Value[T] {
 	// for v := range iter {
 	// 	return OfOk(v)
 	// }
@@ -24,9 +26,9 @@ func First[T any](iter Iter[T]) Value[T] {
 	return Of(first, ok)
 }
 
-// Last returns a Value of the last element yielded by iter.
-// Returns a not-ok Value if no element is yielded.
-func Last[T any](iter Iter[T]) Value[T] {
+// Last returns a Value of the last element.
+// Returns a not-ok Value if there are no elements.
+func (iter Iter[T]) Last() Value[T] {
 	var last T
 	var ok bool
 	iter(func(v T) bool {
@@ -37,9 +39,9 @@ func Last[T any](iter Iter[T]) Value[T] {
 	return Of(last, ok)
 }
 
-// Min returns a Value of the minimum element yielded by iter.
-// Returns a not-ok Value if no element is yielded.
-func Min[T any](iter Iter[T], lt func(T, T) bool) Value[T] {
+// Min returns a Value of the minimum element.
+// Returns a not-ok Value if there are no elements.
+func (iter Iter[T]) Min(lt func(T, T) bool) Value[T] {
 	var min T
 	var ok bool
 	iter(func(v T) bool {
@@ -52,9 +54,9 @@ func Min[T any](iter Iter[T], lt func(T, T) bool) Value[T] {
 	return Of(min, ok)
 }
 
-// Max returns a Value of the maximum element yielded by iter.
-// Returns a not-ok Value if no element is yielded.
-func Max[T any](iter Iter[T], gt func(T, T) bool) Value[T] {
+// Max returns a Value of the maximum element.
+// Returns a not-ok Value if there are no elements.
+func (iter Iter[T]) Max(gt func(T, T) bool) Value[T] {
 	var max T
 	var ok bool
 	iter(func(v T) bool {
@@ -67,16 +69,16 @@ func Max[T any](iter Iter[T], gt func(T, T) bool) Value[T] {
 	return Of(max, ok)
 }
 
-// Reduce returns a Value of the result of op applied to all elements yielded by iter.
-// Returns a not-ok Value if no element is yielded.
-func Reduce[T any](iter Iter[T], op func(T, T) T) Value[T] {
+// Reduce returns a Value of the result of accumulating all elements.
+// Returns a not-ok Value if there are no elements.
+func (iter Iter[T]) Reduce(accum func(res T, v T) T) Value[T] {
 	var res T
 	var ok bool
 	iter(func(v T) bool {
 		if !ok {
 			res = v
 		} else {
-			res = op(res, v)
+			res = accum(res, v)
 		}
 		ok = true
 		return true
@@ -84,19 +86,19 @@ func Reduce[T any](iter Iter[T], op func(T, T) T) Value[T] {
 	return Of(res, ok)
 }
 
-// Sum returns a Value of the sum of all elements yielded by iter.
-// Returns a not-ok Value if no element is yielded.
-func Sum[T constraints.Integer | constraints.Float](iter Iter[T]) Value[T] {
-	return Reduce(iter, func(v, v2 T) T {
+// Sum returns a Value of the sum of all elements.
+// Returns a not-ok Value if there are no elements.
+func (iter NumIter[T]) Sum() Value[T] {
+	return Iter[T](iter).Reduce(func(v, v2 T) T {
 		return v + v2
 	})
 }
 
-// Avg returns a Value of the average of all elements yielded by iter.
-// Returns a not-ok Value if no element is yielded.
-func Avg[T constraints.Integer | constraints.Float](iter Iter[T]) Value[float64] {
+// Avg returns a Value of the average of all elements.
+// Returns a not-ok Value if there are no elements.
+func (iter NumIter[T]) Avg() Value[float64] {
 	n := float64(1)
-	sum := Reduce(iter, func(v, v2 T) T {
+	sum := Iter[T](iter).Reduce(func(v, v2 T) T {
 		n++
 		return v + v2
 	})
