@@ -221,3 +221,8 @@ func Flatten[T any](val Value[Value[T]]) Value[T] {
 	}
 	return val.v
 }
+
+// Equal reports whether val and val2 contain the same value.
+func Equal[T comparable](val, val2 Value[T]) bool {
+	return val.v == val2.v && val.ok == val2.ok
+}
