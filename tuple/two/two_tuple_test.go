@@ -18,7 +18,7 @@ func get() (string, int, bool) {
 	return "a", 1, true
 }
 
-func kvs[K comparable, V any](m map[K]V) func(yield func(K, V) bool) {
+func all[K comparable, V any](m map[K]V) func(yield func(K, V) bool) {
 	return func(yield func(K, V) bool) {
 		for k, v := range m {
 			if !yield(k, v) {
@@ -52,14 +52,14 @@ func Test_TupleMap(t *testing.T) {
 
 func Test_TupleIter(t *testing.T) {
 	var m map[int]string
-	if got := optional.First(two.TupleIter(kvs(m))); got.IsOk() {
+	if got := optional.First(two.TupleIter(all(m))); got.IsOk() {
 		t.Errorf("First() of empty map = %v, want %v", got, optional.OfNotOk[two.Tuple[int, string]]())
 	}
 	m = map[int]string{
 		0: "a",
 	}
 	want := two.TupleValueOf(0, "a", true)
-	if got := optional.First(two.TupleIter(kvs(m))); !optional.Equal(got, want) {
+	if got := optional.First(two.TupleIter(all(m))); !optional.Equal(got, want) {
 		t.Errorf("First() = %v, want %v", got, want)
 	}
 }

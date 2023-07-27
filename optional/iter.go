@@ -42,7 +42,9 @@ func Min[T constraints.Ordered](iter Iter[T]) Value[T] {
 	var min T
 	var ok bool
 	iter(func(v T) bool {
-		if v < min {
+		if !ok {
+			min = v
+		} else if v < min {
 			min = v
 		}
 		ok = true
@@ -57,7 +59,9 @@ func MinFunc[T any](iter Iter[T], lt func(T, T) bool) Value[T] {
 	var min T
 	var ok bool
 	iter(func(v T) bool {
-		if lt(v, min) {
+		if !ok {
+			min = v
+		} else if lt(v, min) {
 			min = v
 		}
 		ok = true
@@ -72,7 +76,9 @@ func Max[T constraints.Ordered](iter Iter[T]) Value[T] {
 	var max T
 	var ok bool
 	iter(func(v T) bool {
-		if v > max {
+		if !ok {
+			max = v
+		} else if v > max {
 			max = v
 		}
 		ok = true
@@ -87,7 +93,9 @@ func MaxFunc[T any](iter Iter[T], gt func(T, T) bool) Value[T] {
 	var max T
 	var ok bool
 	iter(func(v T) bool {
-		if gt(v, max) {
+		if !ok {
+			max = v
+		} else if gt(v, max) {
 			max = v
 		}
 		ok = true
