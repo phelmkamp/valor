@@ -1,4 +1,4 @@
-// Copyright 2022 phelmkamp. All rights reserved.
+// Copyright 2023 phelmkamp. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
@@ -220,4 +220,9 @@ func Flatten[T any](val Value[Value[T]]) Value[T] {
 		return OfNotOk[T]()
 	}
 	return val.v
+}
+
+// Equal reports whether val and val2 contain the same value.
+func Equal[T comparable](val, val2 Value[T]) bool {
+	return val.v == val2.v && val.ok == val2.ok
 }

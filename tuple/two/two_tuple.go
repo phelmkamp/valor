@@ -1,4 +1,4 @@
-// Copyright 2022 phelmkamp. All rights reserved.
+// Copyright 2023 phelmkamp. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
@@ -56,4 +56,13 @@ func TupleZip[T, T2, T3, T4 any](t Tuple[T, T3], t2 Tuple[T2, T4]) four.Tuple[T,
 // TupleUnzip separates the values of t into two Tuples.
 func TupleUnzip[T, T2, T3, T4 any](t four.Tuple[T, T2, T3, T4]) (Tuple[T, T3], Tuple[T2, T4]) {
 	return TupleOf(t.V, t.V3), TupleOf(t.V2, t.V4)
+}
+
+// TupleIter converts an iterator of two values into an iterator of Tuples.
+func TupleIter[T, T2 any](iter func(yield func(T, T2) bool)) func(yield func(Tuple[T, T2]) bool) {
+	return func(yield func(t Tuple[T, T2]) bool) {
+		iter(func(v T, v2 T2) bool {
+			return yield(TupleOf(v, v2))
+		})
+	}
 }

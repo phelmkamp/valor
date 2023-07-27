@@ -1,4 +1,4 @@
-// Copyright 2022 phelmkamp. All rights reserved.
+// Copyright 2023 phelmkamp. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
@@ -7,6 +7,7 @@ package singleton
 
 import (
 	"fmt"
+
 	"github.com/phelmkamp/valor/tuple/two"
 	"github.com/phelmkamp/valor/tuple/unit"
 )
@@ -14,7 +15,8 @@ import (
 // Set contains at most one element.
 //
 // It works like a map. Use the key unit.Unit to access the element:
-//  v, ok := s[unit.Unit]
+//
+//	v, ok := s[unit.Unit]
 type Set[E any] map[unit.Type]E
 
 // String returns the Set formatted as a string.

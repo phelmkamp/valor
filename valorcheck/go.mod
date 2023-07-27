@@ -1,9 +1,9 @@
 module github.com/phelmkamp/valor/valorcheck
 
-go 1.19
+go 1.20
 
 require (
-	github.com/phelmkamp/valor v0.11.0
+	github.com/phelmkamp/valor v0.11.1
 	golang.org/x/tools v0.1.12
 )
 

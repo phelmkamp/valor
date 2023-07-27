@@ -1,4 +1,4 @@
-// Copyright 2022 phelmkamp. All rights reserved.
+// Copyright 2023 phelmkamp. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
@@ -25,7 +25,9 @@ type Result[T any] struct {
 // Empty is an empty value.
 // It's an alias for struct{} and is equivalent to struct{} in all ways.
 // This is useful when a Result can only contain an error or nothing:
+//
 //	result.OfError[result.Empty](err)
+//
 // Deprecated: use unit.Type instead.
 type Empty = struct{}
 
